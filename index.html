@@ -4,7 +4,7 @@
 .sentence-unit{border-radius:5px;cursor:pointer;box-decoration-break:clone;-webkit-box-decoration-break:clone;transition:background-color .15s}
 .sentence-unit.sentence-active{background:#ffe39a!important;outline:1px solid #e6b85a}
 .sentence-unit .token.chosen{background:#b4e3d2}
-.token.has-note{border-bottom:2px dotted #bf7a13}.note-overlay[hidden]{display:none}.note-overlay{position:fixed;inset:0;z-index:1000;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px}.note-dialog{width:min(560px,100%);max-height:90vh;overflow:auto;background:white;border-radius:14px;padding:22px;box-shadow:0 15px 50px #0004}.note-dialog h2{margin-top:0}</style></head><body><header><h1>📖 Üç Dilli PDF Kitaplığı V63</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main><section id="library" style="margin-top:0"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px"><h2 style="margin:0">📚 Kitaplığım</h2><select id="bookSelect" onchange="switchBook(this.value)" aria-label="Kitap seç"><option value="none">Kitap seçin</option></select><label style="display:flex;align-items:center;gap:6px">Kaynak dil <select id="pdfSourceLang" aria-label="PDF kaynak dili"><option value="auto">Otomatik algıla</option><option value="tr">🇹🇷 Türkçe</option><option value="de">🇩🇪 Almanca</option><option value="en">🇬🇧 İngilizce</option></select></label><input type="file" id="pdfInput" accept=".pdf,.epub,application/pdf,application/epub+zip" style="font-size:14px;max-width:230px" aria-label="PDF veya EPUB dosyası seç — otomatik kitaplığa eklenir"><button onclick="deleteBook()">Seçili PDF'yi kaldır</button></div><p class="note" id="libraryStatus" style="font-weight:600;white-space:pre-wrap;color:#8b3a22">Metin seçilebilen PDF ve DRM korumasız EPUB dosyaları desteklenir; OCR yoktur. Okuyucular ilk yüklemede internet bağlantısı gerektirir. Dosya seçince durum burada görünür.</p></section><nav><button onclick="move(-1)">← Önceki sayfa</button><button onclick="move(1)">Sonraki sayfa →</button><label>Sayfa / bölüm <input type="number" id="pageInput" min="1" max="1477" onchange="jump()"></label><span id="pageLabel"></span></nav><nav><button onclick="downloadCSV()">CSV dışa aktar</button><span class="note" id="translationStatus"></span></nav><nav style="margin:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center"><button onclick="exportTranslations()">📤 Çevirileri dışa aktar (JSON)</button><button onclick="exportTranslationsCSV()">📤 Çevirileri dışa aktar (CSV)</button><label style="display:inline-flex;align-items:center;gap:6px;border:1px solid #a8c5b9;border-radius:8px;padding:7px 10px;cursor:pointer;background:#f1f8f3">📥 Çevirileri içe aktar (JSON/CSV) <input id="translationImport" type="file" accept=".json,.csv,application/json,text/csv" onchange="importTranslations(this)" style="max-width:185px"/></label><span id="transferStatus" class="note"></span></nav><div class="cols"><article class="panel"><h3>🇹🇷 Türkçe · PDF metni</h3><div class="text" id="trText"></div></article><article class="panel"><h3>🇩🇪 Deutsch · otomatik çeviri</h3><div class="text" id="deText"></div></article><article class="panel"><h3>🇬🇧 English · automatic translation</h3><div class="text" id="enText"></div></article></div><section><h2>📝 Üç dilli kelime defteri</h2><p class="note">Metindeki bir kelimeye dokun, ardından <b>Seçili kelimeyi al</b>. İnternet varsa diğer iki dilde karşılığı aranır. Çevirileri kaydetmeden önce kontrol et.</p><button class="primary" onclick="takeWord()">Seçili kelimeyi al</button> <button onclick="openSelectedNote()">📝 Seçili kelimeye not ekle / düzenle</button> <span id="status" class="note">Hazır.</span><div class="cols" style="margin-top:12px"><div class="field"><label>🇹🇷 Türkçe</label><input id="tr" placeholder="Türkçe"></div><div class="field"><label>🇩🇪 Almanca (artikel dahil)</label><input id="de" placeholder="der / die / das + kelime" oninput="preview()"><div id="articlePreview" class="note"></div></div><div class="field"><label>🇬🇧 İngilizce</label><input id="en" placeholder="English"></div></div><div class="actions"><button class="primary" onclick="saveWord()">Üç dilde kaydet</button><button onclick="clearFields()">Temizle</button><button onclick="downloadCSV()">CSV dışa aktar</button><button onclick="downloadWordsJSON()">JSON dışa aktar</button><label style="display:inline-flex;align-items:center;gap:6px">📥 Kelimeleri birleştir (JSON/CSV) <input type="file" accept=".json,.csv,application/json,text/csv" onchange="importBackup(this)" style="max-width:180px"></label></div><div class="actions" style="margin-top:12px"><button onclick="downloadNotesJSON()">📝 Notları dışa aktar (JSON)</button><button onclick="downloadNotesCSV()">📝 Notları dışa aktar (CSV)</button><label>📝 Notları birleştir (JSON/CSV) <input type="file" accept=".json,.csv" onchange="importNotes(this)" style="max-width:180px"></label><span id="notesTransferStatus" class="note"></span></div><p id="storageNote" class="note">Kelimeler otomatik olarak tarayıcıda saklanır.</p><label style="display:block;margin:12px 0">📚 Kelimeleri göster: <select id="wordBookFilter" onchange="renderSaved()"><option value="all">Tüm kitaplar</option></select></label><div id="saved"></div></section></main><div id="noteOverlay" class="note-overlay" hidden><div class="note-dialog" role="dialog" aria-modal="true" aria-labelledby="noteHeading"><h2 id="noteHeading">📝 Kelime notu</h2><div id="noteContext" class="note"></div><label for="noteEditor">Notun</label><textarea id="noteEditor" rows="5" placeholder="Bu kelimeyle ilgili notunu yaz…" style="width:100%;font:inherit;padding:10px;border:1px solid #a8c5b9;border-radius:8px;resize:vertical"></textarea><p id="noteStatus" class="note"></p><div class="actions"><button class="primary" onclick="saveSelectedNote()">Notu kaydet</button><button onclick="deleteSelectedNote()">Notu sil</button><button onclick="closeNote()">Kapat</button></div></div></div><script>
+.token.has-note{border-bottom:2px dotted #bf7a13}.note-overlay[hidden]{display:none}.note-overlay{position:fixed;inset:0;z-index:1000;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px}.note-dialog{width:min(560px,100%);max-height:90vh;overflow:auto;background:white;border-radius:14px;padding:22px;box-shadow:0 15px 50px #0004}.note-dialog h2{margin-top:0}</style></head><body><header><h1>📖 Üç Dilli PDF Kitaplığı V64</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main><section id="library" style="margin-top:0"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px"><h2 style="margin:0">📚 Kitaplığım</h2><select id="bookSelect" onchange="switchBook(this.value)" aria-label="Kitap seç"><option value="none">Kitap seçin</option></select><label style="display:flex;align-items:center;gap:6px">Kaynak dil <select id="pdfSourceLang" aria-label="PDF kaynak dili"><option value="auto">Otomatik algıla</option><option value="tr">🇹🇷 Türkçe</option><option value="de">🇩🇪 Almanca</option><option value="en">🇬🇧 İngilizce</option></select></label><input type="file" id="pdfInput" accept=".pdf,.epub,application/pdf,application/epub+zip" style="font-size:14px;max-width:230px" aria-label="PDF veya EPUB dosyası seç — otomatik kitaplığa eklenir"><button onclick="deleteBook()">Seçili PDF'yi kaldır</button></div><p class="note" id="libraryStatus" style="font-weight:600;white-space:pre-wrap;color:#8b3a22">Metin seçilebilen PDF ve DRM korumasız EPUB dosyaları desteklenir; OCR yoktur. Okuyucular ilk yüklemede internet bağlantısı gerektirir. Dosya seçince durum burada görünür.</p></section><nav><button onclick="move(-1)">← Önceki sayfa</button><button onclick="move(1)">Sonraki sayfa →</button><label>Sayfa / bölüm <input type="number" id="pageInput" min="1" max="1477" onchange="jump()"></label><span id="pageLabel"></span></nav><nav><button onclick="downloadCSV()">CSV dışa aktar</button><span class="note" id="translationStatus"></span></nav><nav style="margin:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center"><button onclick="exportTranslations()">📤 Çevirileri dışa aktar (JSON)</button><button onclick="exportTranslationsCSV()">📤 Çevirileri dışa aktar (CSV)</button><label style="display:inline-flex;align-items:center;gap:6px;border:1px solid #a8c5b9;border-radius:8px;padding:7px 10px;cursor:pointer;background:#f1f8f3">📥 Çevirileri içe aktar (JSON/CSV) <input id="translationImport" type="file" accept=".json,.csv,application/json,text/csv" onchange="importTranslations(this)" style="max-width:185px"/></label><span id="transferStatus" class="note"></span></nav><div class="cols"><article class="panel"><h3>🇹🇷 Türkçe · PDF metni</h3><div class="text" id="trText"></div></article><article class="panel"><h3>🇩🇪 Deutsch · otomatik çeviri</h3><div class="text" id="deText"></div></article><article class="panel"><h3>🇬🇧 English · automatic translation</h3><div class="text" id="enText"></div></article></div><section><h2>📝 Üç dilli kelime defteri</h2><p class="note">Metindeki bir kelimeye dokun, ardından <b>Seçili kelimeyi al</b>. İnternet varsa diğer iki dilde karşılığı aranır. Çevirileri kaydetmeden önce kontrol et.</p><button class="primary" onclick="takeWord()">Seçili kelimeyi al</button> <button onclick="openSelectedNote()">📝 Seçili kelimeye not ekle / düzenle</button> <span id="status" class="note">Hazır.</span><div class="cols" style="margin-top:12px"><div class="field"><label>🇹🇷 Türkçe</label><input id="tr" placeholder="Türkçe"></div><div class="field"><label>🇩🇪 Almanca (artikel dahil)</label><input id="de" placeholder="der / die / das + kelime" oninput="preview()"><div id="articlePreview" class="note"></div></div><div class="field"><label>🇬🇧 İngilizce</label><input id="en" placeholder="English"></div></div><div class="actions"><button class="primary" onclick="saveWord()">Üç dilde kaydet</button><button onclick="clearFields()">Temizle</button><button onclick="downloadCSV()">CSV dışa aktar</button><button onclick="downloadWordsJSON()">JSON dışa aktar</button><label style="display:inline-flex;align-items:center;gap:6px">📥 Kelimeleri birleştir (JSON/CSV) <input type="file" accept=".json,.csv,application/json,text/csv" onchange="importBackup(this)" style="max-width:180px"></label></div><div class="actions" style="margin-top:12px"><button onclick="downloadNotesJSON()">📝 Notları dışa aktar (JSON)</button><button onclick="downloadNotesCSV()">📝 Notları dışa aktar (CSV)</button><label>📝 Notları birleştir (JSON/CSV) <input type="file" accept=".json,.csv" onchange="importNotes(this)" style="max-width:180px"></label><span id="notesTransferStatus" class="note"></span></div><p id="storageNote" class="note">Kelimeler otomatik olarak tarayıcıda saklanır.</p><label style="display:block;margin:12px 0">📚 Kelimeleri göster: <select id="wordBookFilter" onchange="renderSaved()"><option value="all">Tüm kitaplar</option></select></label><div id="saved"></div></section></main><div id="noteOverlay" class="note-overlay" hidden><div class="note-dialog" role="dialog" aria-modal="true" aria-labelledby="noteHeading"><h2 id="noteHeading">📝 Kelime notu</h2><div id="noteContext" class="note"></div><label for="noteEditor">Notun</label><textarea id="noteEditor" rows="5" placeholder="Bu kelimeyle ilgili notunu yaz…" style="width:100%;font:inherit;padding:10px;border:1px solid #a8c5b9;border-radius:8px;resize:vertical"></textarea><p id="noteStatus" class="note"></p><div class="actions"><button class="primary" onclick="saveSelectedNote()">Notu kaydet</button><button onclick="deleteSelectedNote()">Notu sil</button><button onclick="closeNote()">Kapat</button></div></div></div><script>
 // Early diagnostic bootstrap: independent from the large book data / translation script.
 (function(){
  var field=document.getElementById('pdfInput');
@@ -302,7 +302,7 @@ async function requestJSON(url,timeout=14000){
 }
 // Translation is automatic. No service configuration is required.
 // V21: fast first provider on both Android and iPad, with per-provider circuit breakers.
-const providerState={google:{until:0,failures:0},memory:{until:0,failures:0},lt1:{until:0,failures:0},lt2:{until:0,failures:0},lt3:{until:0,failures:0}};
+const providerState=Object.fromEntries(['google','memory','lt1','lt2','lt3','lt4','lt5','lt6','lt7','lt8','lingva1','lingva2','lingva3','lingva4','apertium'].map(k=>[k,{until:0,failures:0}]));
 function providerPause(name,ms){
   // V63: temporary network/CORS failures must not lock a provider for an hour.
   providerState[name].until=Math.max(providerState[name].until,Date.now()+ms);
@@ -311,7 +311,12 @@ function providerPause(name,ms){
 const LIBRE_MIRRORS=[
   ['lt1','https://translate.terraprint.co'],
   ['lt2','https://trans.zillyhuhn.com'],
-  ['lt3','https://libretranslate.eownerdead.dedyn.io']
+  ['lt3','https://libretranslate.eownerdead.dedyn.io'],
+  ['lt4','https://translate.lotigara.ru'],
+  ['lt5','https://lt.vern.cc'],
+  ['lt6','https://translate.fedilab.app'],
+  ['lt7','https://translate.argosopentech.com'],
+  ['lt8','https://libretranslate.com']
 ];
 async function libreRequest(base,q,from,to){
   const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),4500);
@@ -328,6 +333,46 @@ async function libreRequest(base,q,from,to){
     if(e instanceof TypeError)throw translationError('CORS veya bağlantı engeli',true);
     throw e;
   }finally{clearTimeout(timer)}
+}
+// V64: Public endpoints are optional fallbacks, not guaranteed services.
+const LINGVA_MIRRORS=[
+ ['lingva1','https://lingva.ml'],['lingva2','https://lingva.lunar.icu'],
+ ['lingva3','https://lingva.garudalinux.org'],['lingva4','https://translate.plausibility.cloud']
+];
+async function lingvaRequest(base,q,from,to){
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),3500);
+ try{
+  const r=await fetch(base+'/api/v1/'+encodeURIComponent(from)+'/'+encodeURIComponent(to)+'/'+encodeURIComponent(q),{signal:ctrl.signal,mode:'cors',cache:'no-store'});
+  if(!r.ok)throw translationError('HTTP '+r.status);
+  const j=await r.json(),t=String(j.translation||'').trim();
+  if(!t)throw translationError('Boş çeviri');
+  return t;
+ }catch(e){if(e.name==='AbortError')throw translationError('Zaman aşımı');if(e instanceof TypeError)throw translationError('CORS veya bağlantı engeli',true);throw e}
+ finally{clearTimeout(timer)}
+}
+let apertiumPairs=null,apertiumChecked=0;
+async function apertiumRequest(q,from,to){
+ const codes={tr:'tur',de:'deu',en:'eng'};
+ const pair=codes[from]+'|'+codes[to];
+ if(!codes[from]||!codes[to])throw translationError('Dil desteklenmiyor',true);
+ if(!apertiumPairs||Date.now()-apertiumChecked>86400000){
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),3500);
+  try{
+   const r=await fetch('https://apertium.org/apy/listPairs',{signal:ctrl.signal,mode:'cors'});
+   if(!r.ok)throw Error('HTTP '+r.status);
+   const pairs=await r.json();
+   apertiumPairs=new Set(pairs.map(x=>x.sourceLanguage+'|'+x.targetLanguage));apertiumChecked=Date.now();
+  }finally{clearTimeout(timer)}
+ }
+ if(!apertiumPairs.has(pair))throw translationError('Bu dil çifti desteklenmiyor',true);
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),5000);
+ try{
+  const u='https://apertium.org/apy/translate?langpair='+encodeURIComponent(pair)+'&q='+encodeURIComponent(q);
+  const r=await fetch(u,{signal:ctrl.signal,mode:'cors'});
+  if(!r.ok)throw Error('HTTP '+r.status);
+  const j=await r.json(),t=String(j.responseData?.translatedText||'').trim();
+  if(!t)throw Error('Boş çeviri');return t;
+ }finally{clearTimeout(timer)}
 }
 async function api(q,from,to){
   const google=async()=>{
@@ -347,7 +392,7 @@ async function api(q,from,to){
     return t;
   };
   // Fast, successful Android path remains first; iPad automatically rotates mirrors.
-  const services=[['google',google],['memory',memory],...LIBRE_MIRRORS.map(([id,url])=>[id,()=>libreRequest(url,q,from,to)])];
+  const services=[['google',google],['memory',memory],...LIBRE_MIRRORS.map(([id,url])=>[id,()=>libreRequest(url,q,from,to)]),...LINGVA_MIRRORS.map(([id,url])=>[id,()=>lingvaRequest(url,q,from,to)]),['apertium',()=>apertiumRequest(q,from,to)]];
   const errors=[];
   for(const [name,fn] of services){
     if(providerState[name].until>Date.now()){errors.push(name+': beklemede');continue}
@@ -356,7 +401,7 @@ async function api(q,from,to){
       const msg=String(e.message||e);errors.push(name+': '+msg);
       providerState[name].failures++;
       if(/429|kota|çok fazla istek/i.test(msg))providerPause(name,name==='memory'?15*60*1000:5*60*1000);
-      else if(/CORS|403|anahtar|erişim/i.test(msg))providerPause(name,90*1000);
+      else if(/CORS|403|anahtar|erişim|desteklenmiyor/i.test(msg))providerPause(name,/desteklenmiyor/.test(msg)?86400000:10*60*1000);
       else if(providerState[name].failures>=2)providerPause(name,60*1000);
     }
   }
