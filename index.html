@@ -368,7 +368,6 @@ function enqueuePage(page){
   if(translationTargets().every(l=>legacy[l]))return;
   if(!e.pieces.length)return;
   if(!jobs.has(page))jobs.set(page,{page,retryAt:0,failures:0});
-  else jobs.get(page).retryAt=0;
   wakeRunner(100);
 }
 function wakeRunner(delay=100){
@@ -428,7 +427,7 @@ async function runQueue(){
     runnerActive=false;
     if(jobs.size){
       const soonest=Math.min(...[...jobs.values()].map(j=>j.retryAt||Date.now()));
-      wakeRunner(Math.max(1200,Math.min(600000,soonest-Date.now())));
+      wakeRunner(document.hidden?30000:Math.max(1200,Math.min(600000,soonest-Date.now())));
     }
   }
 }
@@ -437,7 +436,7 @@ window.addEventListener('online',()=>{if(pages.length)enqueuePage(pos+1)});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&pages.length)enqueuePage(pos+1)});
 window.addEventListener('pageshow',()=>{if(pages.length)enqueuePage(pos+1)});
 window.addEventListener('focus',()=>{if(pages.length&&!document.hidden)enqueuePage(pos+1)});
-setInterval(()=>{if(pages.length&&!document.hidden&&!runnerActive)enqueuePage(pos+1)},30000);
+setInterval(()=>{if(pages.length&&!document.hidden&&!runnerActive&&!jobs.has(pos+1))enqueuePage(pos+1)},30000);
 // V26: portable translations. Only validated translations are imported; never replace existing work.
 function transferMessage(msg){const el=$('transferStatus');if(el)el.textContent=msg}
 function exportTranslations(){
