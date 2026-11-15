@@ -4,7 +4,7 @@
 .sentence-unit{border-radius:5px;cursor:pointer;box-decoration-break:clone;-webkit-box-decoration-break:clone;transition:background-color .15s}
 .sentence-unit.sentence-active{background:#ffe39a!important;outline:1px solid #e6b85a}
 .sentence-unit .token.chosen{background:#b4e3d2}
-.token.has-note{border-bottom:2px dotted #bf7a13}.note-overlay[hidden]{display:none}.note-overlay{position:fixed;inset:0;z-index:1000;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px}.note-dialog{width:min(560px,100%);max-height:90vh;overflow:auto;background:white;border-radius:14px;padding:22px;box-shadow:0 15px 50px #0004}.note-dialog h2{margin-top:0}</style></head><body><header><h1>📖 Üç Dilli PDF Kitaplığı</h1><p>Kendi PDF kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main><section id="library" style="margin-top:0"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px"><h2 style="margin:0">📚 Kitaplığım</h2><select id="bookSelect" onchange="switchBook(this.value)" aria-label="Kitap seç"><option value="none">PDF seçin</option></select><label style="display:flex;align-items:center;gap:6px">Kaynak dil <select id="pdfSourceLang" aria-label="PDF kaynak dili"><option value="auto">Otomatik algıla</option><option value="tr">🇹🇷 Türkçe</option><option value="de">🇩🇪 Almanca</option><option value="en">🇬🇧 İngilizce</option></select></label><input type="file" id="pdfInput" accept=".pdf,application/pdf" style="font-size:14px;max-width:230px" aria-label="Dosya seç — PDF otomatik kitaplığa eklenir"><button onclick="deleteBook()">Seçili PDF'yi kaldır</button></div><p class="note" id="libraryStatus" style="font-weight:600;white-space:pre-wrap;color:#8b3a22">Metin seçilebilen PDF'ler desteklenir; OCR yoktur. PDF okuyucu ilk yüklemede internet bağlantısı gerektirir. Dosya seçince durum burada görünür.</p></section><nav><button onclick="move(-1)">← Önceki sayfa</button><button onclick="move(1)">Sonraki sayfa →</button><label>PDF sayfası <input type="number" id="pageInput" min="1" max="1477" onchange="jump()"></label><span id="pageLabel"></span></nav><nav><button onclick="downloadCSV()">CSV dışa aktar</button><span class="note" id="translationStatus"></span></nav><nav style="margin:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center"><button onclick="exportTranslations()">📤 Çevirileri dışa aktar (JSON)</button><button onclick="exportTranslationsCSV()">📤 Çevirileri dışa aktar (CSV)</button><label style="display:inline-flex;align-items:center;gap:6px;border:1px solid #a8c5b9;border-radius:8px;padding:7px 10px;cursor:pointer;background:#f1f8f3">📥 Çevirileri içe aktar (JSON/CSV) <input id="translationImport" type="file" accept=".json,.csv,application/json,text/csv" onchange="importTranslations(this)" style="max-width:185px"/></label><span id="transferStatus" class="note"></span></nav><div class="cols"><article class="panel"><h3>🇹🇷 Türkçe · PDF metni</h3><div class="text" id="trText"></div></article><article class="panel"><h3>🇩🇪 Deutsch · otomatik çeviri</h3><div class="text" id="deText"></div></article><article class="panel"><h3>🇬🇧 English · automatic translation</h3><div class="text" id="enText"></div></article></div><section><h2>📝 Üç dilli kelime defteri</h2><p class="note">Metindeki bir kelimeye dokun, ardından <b>Seçili kelimeyi al</b>. İnternet varsa diğer iki dilde karşılığı aranır. Çevirileri kaydetmeden önce kontrol et.</p><button class="primary" onclick="takeWord()">Seçili kelimeyi al</button> <button onclick="openSelectedNote()">📝 Seçili kelimeye not ekle / düzenle</button> <span id="status" class="note">Hazır.</span><div class="cols" style="margin-top:12px"><div class="field"><label>🇹🇷 Türkçe</label><input id="tr" placeholder="Türkçe"></div><div class="field"><label>🇩🇪 Almanca (artikel dahil)</label><input id="de" placeholder="der / die / das + kelime" oninput="preview()"><div id="articlePreview" class="note"></div></div><div class="field"><label>🇬🇧 İngilizce</label><input id="en" placeholder="English"></div></div><div class="actions"><button class="primary" onclick="saveWord()">Üç dilde kaydet</button><button onclick="clearFields()">Temizle</button><button onclick="downloadCSV()">CSV dışa aktar</button><button onclick="downloadWordsJSON()">JSON dışa aktar</button><label style="display:inline-flex;align-items:center;gap:6px">📥 Kelimeleri birleştir (JSON/CSV) <input type="file" accept=".json,.csv,application/json,text/csv" onchange="importBackup(this)" style="max-width:180px"></label></div><div class="actions" style="margin-top:12px"><button onclick="downloadNotesJSON()">📝 Notları dışa aktar (JSON)</button><button onclick="downloadNotesCSV()">📝 Notları dışa aktar (CSV)</button><label>📝 Notları birleştir (JSON/CSV) <input type="file" accept=".json,.csv" onchange="importNotes(this)" style="max-width:180px"></label><span id="notesTransferStatus" class="note"></span></div><p id="storageNote" class="note">Kelimeler otomatik olarak tarayıcıda saklanır.</p><label style="display:block;margin:12px 0">📚 Kelimeleri göster: <select id="wordBookFilter" onchange="renderSaved()"><option value="all">Tüm kitaplar</option></select></label><div id="saved"></div></section></main><div id="noteOverlay" class="note-overlay" hidden><div class="note-dialog" role="dialog" aria-modal="true" aria-labelledby="noteHeading"><h2 id="noteHeading">📝 Kelime notu</h2><div id="noteContext" class="note"></div><label for="noteEditor">Notun</label><textarea id="noteEditor" rows="5" placeholder="Bu kelimeyle ilgili notunu yaz…" style="width:100%;font:inherit;padding:10px;border:1px solid #a8c5b9;border-radius:8px;resize:vertical"></textarea><p id="noteStatus" class="note"></p><div class="actions"><button class="primary" onclick="saveSelectedNote()">Notu kaydet</button><button onclick="deleteSelectedNote()">Notu sil</button><button onclick="closeNote()">Kapat</button></div></div></div><script>
+.token.has-note{border-bottom:2px dotted #bf7a13}.note-overlay[hidden]{display:none}.note-overlay{position:fixed;inset:0;z-index:1000;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px}.note-dialog{width:min(560px,100%);max-height:90vh;overflow:auto;background:white;border-radius:14px;padding:22px;box-shadow:0 15px 50px #0004}.note-dialog h2{margin-top:0}</style></head><body><header><h1>📖 Üç Dilli PDF Kitaplığı V61</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main><section id="library" style="margin-top:0"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px"><h2 style="margin:0">📚 Kitaplığım</h2><select id="bookSelect" onchange="switchBook(this.value)" aria-label="Kitap seç"><option value="none">Kitap seçin</option></select><label style="display:flex;align-items:center;gap:6px">Kaynak dil <select id="pdfSourceLang" aria-label="PDF kaynak dili"><option value="auto">Otomatik algıla</option><option value="tr">🇹🇷 Türkçe</option><option value="de">🇩🇪 Almanca</option><option value="en">🇬🇧 İngilizce</option></select></label><input type="file" id="pdfInput" accept=".pdf,.epub,application/pdf,application/epub+zip" style="font-size:14px;max-width:230px" aria-label="PDF veya EPUB dosyası seç — otomatik kitaplığa eklenir"><button onclick="deleteBook()">Seçili PDF'yi kaldır</button></div><p class="note" id="libraryStatus" style="font-weight:600;white-space:pre-wrap;color:#8b3a22">Metin seçilebilen PDF ve DRM korumasız EPUB dosyaları desteklenir; OCR yoktur. Okuyucular ilk yüklemede internet bağlantısı gerektirir. Dosya seçince durum burada görünür.</p></section><nav><button onclick="move(-1)">← Önceki sayfa</button><button onclick="move(1)">Sonraki sayfa →</button><label>Sayfa / bölüm <input type="number" id="pageInput" min="1" max="1477" onchange="jump()"></label><span id="pageLabel"></span></nav><nav><button onclick="downloadCSV()">CSV dışa aktar</button><span class="note" id="translationStatus"></span></nav><nav style="margin:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center"><button onclick="exportTranslations()">📤 Çevirileri dışa aktar (JSON)</button><button onclick="exportTranslationsCSV()">📤 Çevirileri dışa aktar (CSV)</button><label style="display:inline-flex;align-items:center;gap:6px;border:1px solid #a8c5b9;border-radius:8px;padding:7px 10px;cursor:pointer;background:#f1f8f3">📥 Çevirileri içe aktar (JSON/CSV) <input id="translationImport" type="file" accept=".json,.csv,application/json,text/csv" onchange="importTranslations(this)" style="max-width:185px"/></label><span id="transferStatus" class="note"></span></nav><div class="cols"><article class="panel"><h3>🇹🇷 Türkçe · PDF metni</h3><div class="text" id="trText"></div></article><article class="panel"><h3>🇩🇪 Deutsch · otomatik çeviri</h3><div class="text" id="deText"></div></article><article class="panel"><h3>🇬🇧 English · automatic translation</h3><div class="text" id="enText"></div></article></div><section><h2>📝 Üç dilli kelime defteri</h2><p class="note">Metindeki bir kelimeye dokun, ardından <b>Seçili kelimeyi al</b>. İnternet varsa diğer iki dilde karşılığı aranır. Çevirileri kaydetmeden önce kontrol et.</p><button class="primary" onclick="takeWord()">Seçili kelimeyi al</button> <button onclick="openSelectedNote()">📝 Seçili kelimeye not ekle / düzenle</button> <span id="status" class="note">Hazır.</span><div class="cols" style="margin-top:12px"><div class="field"><label>🇹🇷 Türkçe</label><input id="tr" placeholder="Türkçe"></div><div class="field"><label>🇩🇪 Almanca (artikel dahil)</label><input id="de" placeholder="der / die / das + kelime" oninput="preview()"><div id="articlePreview" class="note"></div></div><div class="field"><label>🇬🇧 İngilizce</label><input id="en" placeholder="English"></div></div><div class="actions"><button class="primary" onclick="saveWord()">Üç dilde kaydet</button><button onclick="clearFields()">Temizle</button><button onclick="downloadCSV()">CSV dışa aktar</button><button onclick="downloadWordsJSON()">JSON dışa aktar</button><label style="display:inline-flex;align-items:center;gap:6px">📥 Kelimeleri birleştir (JSON/CSV) <input type="file" accept=".json,.csv,application/json,text/csv" onchange="importBackup(this)" style="max-width:180px"></label></div><div class="actions" style="margin-top:12px"><button onclick="downloadNotesJSON()">📝 Notları dışa aktar (JSON)</button><button onclick="downloadNotesCSV()">📝 Notları dışa aktar (CSV)</button><label>📝 Notları birleştir (JSON/CSV) <input type="file" accept=".json,.csv" onchange="importNotes(this)" style="max-width:180px"></label><span id="notesTransferStatus" class="note"></span></div><p id="storageNote" class="note">Kelimeler otomatik olarak tarayıcıda saklanır.</p><label style="display:block;margin:12px 0">📚 Kelimeleri göster: <select id="wordBookFilter" onchange="renderSaved()"><option value="all">Tüm kitaplar</option></select></label><div id="saved"></div></section></main><div id="noteOverlay" class="note-overlay" hidden><div class="note-dialog" role="dialog" aria-modal="true" aria-labelledby="noteHeading"><h2 id="noteHeading">📝 Kelime notu</h2><div id="noteContext" class="note"></div><label for="noteEditor">Notun</label><textarea id="noteEditor" rows="5" placeholder="Bu kelimeyle ilgili notunu yaz…" style="width:100%;font:inherit;padding:10px;border:1px solid #a8c5b9;border-radius:8px;resize:vertical"></textarea><p id="noteStatus" class="note"></p><div class="actions"><button class="primary" onclick="saveSelectedNote()">Notu kaydet</button><button onclick="deleteSelectedNote()">Notu sil</button><button onclick="closeNote()">Kapat</button></div></div></div><script>
 // Early diagnostic bootstrap: independent from the large book data / translation script.
 (function(){
  var field=document.getElementById('pdfInput');
@@ -17,7 +17,7 @@
   var file=field.files&&field.files[0];if(!file)return;
   var sig=file.name+'|'+file.size+'|'+file.lastModified;
   if(sig===last)return;last=sig;
-  say('✓ PDF algılandı: '+file.name+' ('+Math.round(file.size/1024)+' KB). Okuyucu başlatılıyor…');
+  say('✓ Kitap algılandı: '+file.name+' ('+Math.round(file.size/1024)+' KB). Okuyucu başlatılıyor…');
   setTimeout(function(){
    if(typeof window.handlePDFSelection==='function'){
     try{window.handlePDFSelection(field)}catch(e){say('⚠ Yükleme çağrısı hatası: '+e.message)}
@@ -265,12 +265,12 @@ function showOfflineFirst(){
   $('translationStatus').textContent='✓ Birinci Söz: '+OFFLINE_FIRST.length+' eşleştirilmiş bölüm cihazda hazır. İnternet gerekmez.';
 }
 function render(){
-  if(!pages.length){$('pageInput').value='';$('pageLabel').textContent=' · PDF yükleyerek başlayın';for(const lang of ['tr','de','en'])$(lang+'Text').textContent='';$('translationStatus').textContent='PDF yüklediğinizde açık sayfa otomatik çevrilecek.';return;}
+  if(!pages.length){$('pageInput').value='';$('pageLabel').textContent=' · PDF veya EPUB yükleyerek başlayın';for(const lang of ['tr','de','en'])$(lang+'Text').textContent='';$('translationStatus').textContent='PDF yüklediğinizde açık sayfa otomatik çevrilecek.';return;}
   if(offlineMode){offlineMode=false;}
   const n=pos+1;
   activeSentence=null;
   $('pageInput').value=n;
-  $('pageLabel').textContent=' / '+pages.length+' · PDF sayfası '+n;
+  $('pageLabel').textContent=' / '+pages.length+' · '+(currentBook.startsWith('epub_')?'EPUB bölümü/sayfası ':'PDF sayfası ')+n;
   
   showParts(n);
   try{localStorage.setItem(BOOK,String(n))}catch(e){}
@@ -753,7 +753,7 @@ window.handlePDFSelection=function(el){
  if(window.__pdfImportSignature===signature && (Date.now()-window.__pdfImportAt)<3000)return;
  window.__pdfImportSignature=signature;window.__pdfImportAt=Date.now();
  libraryStatus('✓ Dosya algılandı: '+f.name+' ('+Math.round(f.size/1024)+' KB). Okuma başlatılıyor…');
- Promise.resolve().then(()=>addPDF(el)).catch(e=>libraryStatus('⚠ PDF işlenemedi: '+(e.message||e)));
+ Promise.resolve().then(()=>importBookFile(el)).catch(e=>libraryStatus('⚠ PDF işlenemedi: '+(e.message||e)));
 };
 
 function openLibraryDB(){return new Promise((resolve,reject)=>{if(!window.indexedDB){reject(Error('Bu görüntüleyici IndexedDB kayıtlarını desteklemiyor.'));return}const r=indexedDB.open('three_language_pdf_library_v29',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('books'))r.result.createObjectStore('books',{keyPath:'id'})};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
@@ -761,7 +761,7 @@ async function listLibrary(){const db=await openLibraryDB();return new Promise((
 async function getLibraryBook(id){const db=await openLibraryDB();return new Promise((resolve,reject)=>{const r=db.transaction('books').objectStore('books').get(id);r.onsuccess=()=>{db.close();resolve(r.result)};r.onerror=()=>{db.close();reject(r.error)}})}
 async function putLibraryBook(book){const db=await openLibraryDB();return new Promise((resolve,reject)=>{const tx=db.transaction('books','readwrite');tx.objectStore('books').put(book);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}})}
 async function removeLibraryBook(id){const db=await openLibraryDB();return new Promise((resolve,reject)=>{const tx=db.transaction('books','readwrite');tx.objectStore('books').delete(id);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}})}
-async function refreshLibrary(){try{const books=await listLibrary();const select=$('bookSelect');select.innerHTML='<option value="none">PDF seçin</option>';for(const b of books){const opt=document.createElement('option');opt.value=b.id;opt.textContent=b.name+' ('+b.pages.length+' sayfa)';select.appendChild(opt)}select.value=currentBook}catch(e){libraryStatus('Kitaplık açılamadı: '+e.message)}}
+async function refreshLibrary(){try{const books=await listLibrary();const select=$('bookSelect');select.innerHTML='<option value="none">Kitap seçin</option>';for(const b of books){const opt=document.createElement('option');opt.value=b.id;opt.textContent=b.name+' ('+b.pages.length+(b.format==='epub'?' bölüm/sayfa':' sayfa')+')';select.appendChild(opt)}select.value=currentBook}catch(e){libraryStatus('Kitaplık açılamadı: '+e.message)}}
 function loadPDFEngine(){
  if(window.pdfjsLib)return Promise.resolve(window.pdfjsLib);
  if(pdfLoaderPromise)return pdfLoaderPromise;
@@ -791,6 +791,122 @@ function loadPDFEngine(){
  })();
  return pdfLoaderPromise.catch(e=>{pdfLoaderPromise=null;throw e});
 }
+
+/* V61: DRM-free EPUB importer. Read locally, keep text only, no EPUB content is uploaded. */
+let epubLoaderPromise=null;
+function loadEPUBEngine(){
+ if(window.JSZip)return Promise.resolve(window.JSZip);
+ if(epubLoaderPromise)return epubLoaderPromise;
+ const urls=['https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'];
+ epubLoaderPromise=(async()=>{let last='';
+  for(const url of urls){try{await new Promise((resolve,reject)=>{
+   const script=document.createElement('script');script.src=url;
+   const timer=setTimeout(()=>{script.remove();reject(Error('zaman aşımı'))},12000);
+   script.onload=()=>{clearTimeout(timer);window.JSZip?resolve():reject(Error('EPUB okuyucu başlatılamadı'))};
+   script.onerror=()=>{clearTimeout(timer);reject(Error('bağlantı hatası'))};
+   document.head.appendChild(script);
+  });return window.JSZip}catch(e){last=e.message}}
+  throw Error('EPUB okuyucu indirilemedi: '+last);
+ })();
+ return epubLoaderPromise.catch(e=>{epubLoaderPromise=null;throw e});
+}
+function epubNodes(xml,name){return Array.from(xml.getElementsByTagNameNS('*',name)).length?Array.from(xml.getElementsByTagNameNS('*',name)):Array.from(xml.getElementsByTagName(name))}
+function epubPath(base,relative){
+ const raw=String(relative||'').split('#')[0].split('?')[0];
+ const u=new URL(raw,'https://epub.local/'+base);
+ return decodeURIComponent(u.pathname.slice(1));
+}
+function epubCleanText(value){return String(value||'').replace(/\u00a0/g,' ').replace(/[ \t]+/g,' ').replace(/\s*\n\s*/g,' ').trim()}
+function epubExtractParagraphs(xhtml){
+ const doc=new DOMParser().parseFromString(xhtml,'text/html');
+ for(const el of doc.querySelectorAll('script,style,nav,svg,iframe,form,aside,figure,footer,header'))el.remove();
+ const body=doc.body;if(!body)return [];
+ const elements=Array.from(body.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,blockquote,pre'));
+ const blocks=[];
+ for(const el of elements){
+  if(el.closest('li')!==el&&el.closest('li'))continue;
+  if(el.closest('blockquote')!==el&&el.closest('blockquote'))continue;
+  const t=epubCleanText(el.textContent);
+  if(t)blocks.push(t);
+ }
+ if(!blocks.length){const t=epubCleanText(body.textContent);if(t)blocks.push(t)}
+ return blocks;
+}
+function epubVirtualPages(blocks){
+ const result=[];let buffer=[],length=0;
+ function flush(){if(buffer.length){result.push(buffer.join('\n\n'));buffer=[];length=0}}
+ for(const block of blocks){
+  let rest=block;
+  while(rest.length>2500){
+   let at=rest.lastIndexOf(' ',2200);if(at<500)at=2200;
+   const chunk=rest.slice(0,at).trim();if(length+chunk.length>2400)flush();
+   buffer.push(chunk);length+=chunk.length;flush();rest=rest.slice(at).trim();
+  }
+  if(!rest)continue;
+  if(length+rest.length>2400||buffer.length>=9)flush();
+  buffer.push(rest);length+=rest.length;
+ }
+ flush();return result;
+}
+async function importBookFile(input){
+ const f=input.files&&input.files[0];if(!f)return;
+ if(/\.epub$/i.test(f.name))return addEPUB(input);
+ if(/\.pdf$/i.test(f.name))return addPDF(input);
+ libraryStatus('⚠ Yalnızca PDF veya EPUB dosyası seçin.');input.value='';
+}
+async function addEPUB(input){
+ const file=input.files&&input.files[0];if(!file)return;
+ if(pdfImportBusy){libraryStatus('Önceki kitap hâlâ işleniyor.');return}
+ pdfImportBusy=true;
+ try{
+  libraryStatus('EPUB okunuyor: '+file.name);
+  const JSZipClass=await loadEPUBEngine();
+  const data=await file.arrayBuffer();
+  const zip=await JSZipClass.loadAsync(data);
+  if(zip.file('META-INF/encryption.xml'))throw Error('Şifrelenmiş/DRM korumalı EPUB desteklenmiyor.');
+  const containerFile=zip.file('META-INF/container.xml');
+  if(!containerFile)throw Error('EPUB yapısı geçersiz: container.xml bulunamadı.');
+  const container=new DOMParser().parseFromString(await containerFile.async('text'),'application/xml');
+  if(container.querySelector('parsererror'))throw Error('EPUB container.xml okunamadı.');
+  const rootfile=epubNodes(container,'rootfile')[0];
+  const opfPath=rootfile?.getAttribute('full-path');
+  if(!opfPath)throw Error('EPUB paket dosyası bulunamadı.');
+  const opfFile=zip.file(opfPath);
+  if(!opfFile)throw Error('EPUB paket dosyası açılamadı.');
+  const opf=new DOMParser().parseFromString(await opfFile.async('text'),'application/xml');
+  if(opf.querySelector('parsererror'))throw Error('EPUB paket XML dosyası okunamadı.');
+  const base=opfPath.includes('/')?opfPath.slice(0,opfPath.lastIndexOf('/')+1):'';
+  const manifest=new Map();
+  for(const item of epubNodes(opf,'item'))manifest.set(item.getAttribute('id'),{href:item.getAttribute('href'),type:item.getAttribute('media-type')});
+  const blocks=[];
+  const spine=epubNodes(opf,'itemref').filter(item=>item.getAttribute('linear')!=='no');
+  for(let i=0;i<spine.length;i++){
+   const item=manifest.get(spine[i].getAttribute('idref'));if(!item?.href)continue;
+   if(item.type&&!/xhtml|html/i.test(item.type))continue;
+   const path=epubPath(base,item.href);
+   const entry=zip.file(path)||zip.file(encodeURI(path));
+   if(!entry)continue;
+   const html=await entry.async('text');
+   blocks.push(...epubExtractParagraphs(html));
+   if(i%8===0){libraryStatus('EPUB bölümleri okunuyor: '+(i+1)+' / '+spine.length);await new Promise(r=>setTimeout(r,0))}
+  }
+  const texts=epubVirtualPages(blocks);
+  if(!texts.length)throw Error('EPUB içinde okunabilir metin bulunamadı.');
+  let detected=$('pdfSourceLang').value;
+  if(detected==='auto'){
+   detected=detectSourceLanguage(texts.join('\n').slice(0,40000));
+   if(!detected)throw Error('Kaynak dil algılanamadı. Türkçe, Almanca veya İngilizceyi elle seçerek yeniden yükleyin.');
+  }
+  const bytes=new Uint8Array(data);let hash=2166136261;
+  for(let k=0;k<bytes.length;k+=Math.max(1,Math.floor(bytes.length/50000)))hash=Math.imul(hash^bytes[k],16777619);
+  const id='epub_'+(hash>>>0).toString(16)+'_'+bytes.length;
+  await putLibraryBook({id,name:file.name,format:'epub',pages:texts,sourceLang:detected,addedAt:new Date().toISOString()});
+  await refreshLibrary();await switchBook(id);
+  libraryStatus('✓ '+file.name+' eklendi. Kaynak dil: '+({tr:'Türkçe',de:'Almanca',en:'İngilizce'}[detected])+'. '+texts.length+' okuma bölümü. Açık bölüm otomatik çevrilir.');
+ }catch(e){libraryStatus('⚠ EPUB yüklenemedi: '+(e.message||e))}
+ finally{input.value='';pdfImportBusy=false}
+}
+
 async function addPDF(input){const file=input.files&&input.files[0];if(!file)return;if(pdfImportBusy){libraryStatus('Önceki PDF hâlâ işleniyor; lütfen tamamlanmasını bekle.');return;}pdfImportBusy=true;try{
  libraryStatus('Seçilen dosya: '+file.name+' — PDF okuyucu yükleniyor…');const engine=await loadPDFEngine();libraryStatus('PDF okuyucu hazır. Dosya okunuyor: '+file.name);const data=new Uint8Array(await file.arrayBuffer());const doc=await engine.getDocument({data,disableWorker:true}).promise;const texts=[];
  for(let n=1;n<=doc.numPages;n++){const page=await doc.getPage(n);const content=await page.getTextContent();let result='',lastY=null;for(const item of content.items){if(!item.str)continue;const y=item.transform?.[5];if(lastY!==null&&y!==undefined&&Math.abs(y-lastY)>4)result+='\n';else if(result&&!result.endsWith('\n'))result+=' ';result+=item.str;if(item.hasEOL)result+='\n';lastY=y}texts.push(result.trim());if(n%5===0||n===doc.numPages){libraryStatus('PDF okunuyor: '+n+' / '+doc.numPages+' sayfa');await new Promise(r=>setTimeout(r,0))}}
