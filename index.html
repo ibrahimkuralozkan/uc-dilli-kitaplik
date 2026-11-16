@@ -147,7 +147,7 @@ button:active{transform:translateY(1px)}
 .vocab-sort-heading.is-active .vocab-sort-icon{opacity:1}
 @media(prefers-color-scheme:dark){.vocab-sort-heading:hover,.vocab-sort-heading.is-active{color:#89d8b2!important}}
 @media(max-width:650px){.vocab-filter-controls{width:100%}.vocab-search-field{max-width:none}.vocab-list-controls{align-items:stretch}}
-</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V75</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
+</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V76</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
 <section id="library" class="ui-card library-card">
  <div class="ui-section-heading"><div><h2>📚 Kitaplığım</h2><p class="ui-muted">Kitabını seç ve okumaya devam et</p></div>
  <details class="ui-menu"><summary aria-label="Kitap işlemleri">Kitap işlemleri <span class="ui-chevron">⌄</span></summary><div class="ui-menu-content"><button class="ui-danger" onclick="deleteBook()">Seçili kitabı kaldır</button><p class="ui-muted">Yalnızca seçili kitabı kitaplıktan kaldırır.</p></div></details></div>
@@ -941,16 +941,17 @@ function preview(){let s=$('de').value.trim(),m=s.match(/^(der|die|das)\s+(.+)$/
 function clearFields(){for(let l of ['tr','de','en'])$(l).value='';preview()}
 // V48: one shared vocabulary, with optional book provenance and filtering.
 let wordBooks={},wordExamples={};
-function wordKey(row){return row.map(x=>String(x).normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase()).join('\u001f')}
+function wordKey(row){return row.slice(0,3).map(x=>String(x).normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase()).join('\u001f')}
 function bookLabel(id){if(id==='none')return 'Kitap seçilmedi';const option=[...$('bookSelect').options].find(o=>o.value===id);return option?option.textContent:id}
-function bookIds(row){return Array.isArray(wordBooks[wordKey(row)])?wordBooks[wordKey(row)]:[]}
-function addBookTag(row,id=currentBook){if(!id)return false;const k=wordKey(row),arr=bookIds(row);if(arr.includes(id))return false;wordBooks[k]=[...arr,id];return true}
+function entryKey(row){return row[3]||wordKey(row)}
+function bookIds(row){return Array.isArray(wordBooks[entryKey(row)])?wordBooks[entryKey(row)]:[]}
+function addBookTag(row,id=currentBook){if(!id)return false;const k=entryKey(row),arr=bookIds(row);if(arr.includes(id))return false;wordBooks[k]=[...arr,id];return true}
 // V54: transactional vocabulary operations; one authoritative IndexedDB record.
 const VOCAB_STATE_KEY='vocabulary-state-v53';
 let vocabReady=false, vocabQueue=Promise.resolve(), vocabChannel=null;
 function cleanVocabularyState(state){
  const out={words:[],wordBooks:{},examples:{},deleted:[]};if(!state||typeof state!=='object')return out;
- const seen=new Set();for(const w of state.words||[]){if(!Array.isArray(w)||w.length!==3)continue;const k=wordKey(w);if(!seen.has(k)){seen.add(k);out.words.push(w)}}
+ const seen=new Set();for(const w of state.words||[]){if(!Array.isArray(w)||w.length<3)continue;const row=w.slice(0,4);const k=entryKey(row);if(!seen.has(k)){seen.add(k);out.words.push(row)}}
  out.wordBooks=state.wordBooks&&typeof state.wordBooks==='object'?state.wordBooks:{};
  out.examples=state.examples&&typeof state.examples==='object'&&!Array.isArray(state.examples)?state.examples:{};
  out.deleted=Array.isArray(state.deleted)?state.deleted:[];return out;
@@ -976,7 +977,7 @@ function queueVocabChange(change){
 }
 try{if('BroadcastChannel' in window){vocabChannel=new BroadcastChannel('three-language-vocabulary-v53');vocabChannel.onmessage=()=>{vocabQueue.then(refreshVocabulary)}}}catch(e){}
 window.addEventListener('storage',e=>{if(e.key===FALLBACK_PREFIX+VOCAB_STATE_KEY&&storageMode==='local')vocabQueue.then(refreshVocabulary)});
-function persist(){if(!vocabReady)return;const snapshot=words.map(w=>w.slice()),tags=JSON.parse(JSON.stringify(wordBooks));queueVocabChange(state=>{const deleted=new Set(state.deleted);for(const row of snapshot){const k=wordKey(row);if(!deleted.has(k)&&!state.words.some(w=>wordKey(w)===k))state.words.push(row)}for(const [k,ids] of Object.entries(tags)){if(!deleted.has(k))state.wordBooks[k]=[...new Set([...(state.wordBooks[k]||[]),...ids])]} });}
+function persist(){if(!vocabReady)return;const snapshot=words.map(w=>w.slice()),tags=JSON.parse(JSON.stringify(wordBooks));queueVocabChange(state=>{const deleted=new Set(state.deleted);for(const row of snapshot){const k=entryKey(row);if(!deleted.has(k)&&!state.words.some(w=>entryKey(w)===k))state.words.push(row)}for(const [k,ids] of Object.entries(tags)){if(!deleted.has(k))state.wordBooks[k]=[...new Set([...(state.wordBooks[k]||[]),...ids])]} });}
 
 /* V75: Compare the selected word with its own language field, ignoring German articles.
    Preserve the original selection and page to prevent attaching unrelated examples. */
@@ -991,22 +992,20 @@ function vocabularySelectedWordMatches(selected,stored,lang){
 function saveWord(){
  const row=['tr','de','en'].map(l=>$(l).value.trim());
  if(row.some(x=>!x)){$('status').textContent='Üç kutuyu doldur.';return}
- const k=wordKey(row);
+ const k='occ-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
+ const record=[...row,k];
  const context=picked?.context&&picked.context.book===currentBook
   &&picked.context.page===pos+1
   &&vocabularySelectedWordMatches(picked.text,row[['tr','de','en'].indexOf(picked.lang)],picked.lang)
   ?completeWordSentenceContext(picked.context):null;
  queueVocabChange(state=>{
-  state.deleted=state.deleted.filter(x=>x!==k);
-  if(!state.words.some(w=>wordKey(w)===k))state.words.push(row);
+  state.words.push(record);
   state.wordBooks[k]=[...new Set([...(state.wordBooks[k]||[]),currentBook])];
   if(context){
    const list=Array.isArray(state.examples[k])?state.examples[k]:[];
    const identity=context.book+'|'+context.page+'|'+context.part+'|'+context.index;
-   const previous=list.findIndex(e=>e.book+'|'+e.page+'|'+e.part+'|'+e.index===identity);
-   if(previous>=0){
-    const old=list[previous];list[previous]={...context,sentences:Object.fromEntries(['tr','de','en'].map(lang=>[lang,context.sentences[lang]||old.sentences?.[lang]||'']))};
-   }else list.push(context);
+   const previous=-1;
+   list.push(context);
    state.examples[k]=list;
   }
  });
@@ -1060,7 +1059,7 @@ function renderSaved(){
  filtered.sort((a,b)=>vocabSortDirection*collator.compare(vocabularySortValue(a.w[langIndex],vocabSortLang),vocabularySortValue(b.w[langIndex],vocabSortLang))||a.i-b.i);
  $('saved').innerHTML='<div class="vocab-count">'+filtered.length+' kelime · toplam '+words.length+'</div><div class="vocab-table"><div class="vocab-table-head">'+vocabSortHeading('tr','🇹🇷 Türkçe')+vocabSortHeading('de','🇩🇪 Almanca')+vocabSortHeading('en','🇬🇧 İngilizce')+'<span>Örnek</span><span></span></div>'+
  filtered.map(({w,i})=>{
-  const examples=Array.isArray(wordExamples[wordKey(w)])?wordExamples[wordKey(w)]:[];
+  const examples=Array.isArray(wordExamples[entryKey(w)])?wordExamples[wordKey(w)]:[];
   const books=bookIds(w).map(id=>esc(bookLabel(id))).join(', ')||'Eski kayıt · kitap bilgisi yok';
   const de=esc(w[1]).replace(/^(der|die|das)\b/i,a=>'<b class="article '+a.toLowerCase()+'">'+a+'</b>');
   const examplesHTML=examples.map(ex=>'<div class="vocab-example"><div class="vocab-example-source">📖 '+esc(bookLabel(ex.book))+' · '+(Number(ex.page)||'?')+'. sayfa</div><div class="vocab-example-grid">'+
@@ -1069,9 +1068,9 @@ function renderSaved(){
   (examples.length?'<details class="vocab-expand"><summary>Örnek cümleleri göster <span>⌄</span></summary>'+examplesHTML+'</details>':'')+'</div>';
  }).join('')+'</div>';
 }
-function removeWord(i){const row=words[i];if(!row)return;const k=wordKey(row);queueVocabChange(state=>{state.words=state.words.filter(w=>wordKey(w)!==k);delete state.wordBooks[k];delete state.examples[k];if(!state.deleted.includes(k))state.deleted.push(k)});storageNotice('⏳ Kelime siliniyor…')}
-function downloadCSV(){let lines=[['Türkçe','Almanca','İngilizce','Kitap kimlikleri'],...words.map(w=>[...w,bookIds(w).join('|')])].map(r=>r.map(s=>'"'+String(s).replace(/"/g,'""')+'"').join(';'));let b=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='uc_dilli_kelimeler.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
-function downloadWordsJSON(){const blob=new Blob([JSON.stringify({format:'three-language-vocabulary',version:3,words,wordBooks,examples:wordExamples},null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='uc_dilli_kelimeler.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),30000)}
+function removeWord(i){const row=words[i];if(!row)return;const k=entryKey(row);queueVocabChange(state=>{state.words=state.words.filter(w=>entryKey(w)!==k);delete state.wordBooks[k];delete state.examples[k];if(!state.deleted.includes(k))state.deleted.push(k)});storageNotice('⏳ Kelime siliniyor…')}
+function downloadCSV(){let lines=[['Türkçe','Almanca','İngilizce','Kitap kimlikleri','Kayıt kimliği'],...words.map(w=>[...w.slice(0,3),bookIds(w).join('|'),w[3]||''])].map(r=>r.map(s=>'"'+String(s).replace(/"/g,'""')+'"').join(';'));let b=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='uc_dilli_kelimeler.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
+function downloadWordsJSON(){const blob=new Blob([JSON.stringify({format:'three-language-vocabulary',version:4,words,wordBooks,examples:wordExamples},null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='uc_dilli_kelimeler.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),30000)}
 function parseVocabularyCSV(text){
  text=text.replace(/^\uFEFF/,'');const firstLine=text.split(/\r?\n/,1)[0];const delimiter=firstLine.includes(';')?';':firstLine.includes('\t')?'\t':',';const rows=[];let row=[],field='',quoted=false;
  for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"')quoted=false;else field+=c}
@@ -1090,9 +1089,9 @@ async function importBackup(input){
   if(!Array.isArray(rows))throw Error('Kelime listesi bulunamadı');
   let added=0,duplicates=0,invalid=0,tagged=0;
   await queueVocabChange(state=>{
-   const existing=new Set(state.words.map(wordKey));
+   const existing=new Set(state.words.map(entryKey));
    for(const raw of rows){if(!Array.isArray(raw)||raw.length<3||!raw.slice(0,3).every(x=>typeof x==='string'&&x.trim())){invalid++;continue}
-    const row=raw.slice(0,3).map(x=>x.normalize('NFC').trim()),key=wordKey(row);
+    const row=raw.slice(0,3).map(x=>x.normalize('NFC').trim());if(typeof raw[4]==='string'&&raw[4].startsWith('occ-'))row.push(raw[4]);else if(typeof raw[3]==='string'&&raw[3].startsWith('occ-'))row.push(raw[3]);const key=entryKey(row);
     if(existing.has(key))duplicates++;else{state.words.push(row);existing.add(key);added++}
     state.deleted=state.deleted.filter(k=>k!==key);
     const ids=[...(Array.isArray(meta[key])?meta[key]:[]),...(typeof raw[3]==='string'?raw[3].split('|'):[])].filter(Boolean);
@@ -1114,7 +1113,7 @@ async function restore(){
    const tags=await loadStoredObject('vocabulary-book-tags','threepdf_v48_book_tags',{});
    let legacyDB=[];
    await new Promise(resolve=>{try{const r=indexedDB.open('risale_words_db_v11',1);r.onupgradeneeded=()=>{};r.onerror=()=>resolve();r.onsuccess=()=>{const db=r.result;if(!db.objectStoreNames.contains('state')){db.close();resolve();return}const q=db.transaction('state','readonly').objectStore('state').get('words');q.onsuccess=()=>{legacyDB=Array.isArray(q.result)?q.result:[];db.close();resolve()};q.onerror=()=>{db.close();resolve()}}}catch(e){resolve()}});
-   await vocabTransaction(state=>{const seen=new Set();for(const row of [...(Array.isArray(old)?old:[]),...legacyDB]){if(!Array.isArray(row)||row.length!==3)continue;const k=wordKey(row);if(!seen.has(k)){seen.add(k);state.words.push(row)}}state.wordBooks=tags&&typeof tags==='object'&&!Array.isArray(tags)?tags:{}});
+   await vocabTransaction(state=>{const seen=new Set();for(const row of [...(Array.isArray(old)?old:[]),...legacyDB]){if(!Array.isArray(row)||row.length<3)continue;const k=entryKey(row);if(!seen.has(k)){seen.add(k);state.words.push(row)}}state.wordBooks=tags&&typeof tags==='object'&&!Array.isArray(tags)?tags:{}});
   }
   vocabReady=true;await refreshVocabulary();
   const wc=await loadStoredObject('word-cache',WORD_CACHE_KEY,wordTranslationCache);
