@@ -135,7 +135,19 @@ button:active{transform:translateY(1px)}
 .vocab-word-mark{background:#bcebc9;color:#164d3f;padding:0 2px;border-radius:2px}
 @media(prefers-color-scheme:dark){.vocab-example-badge,.vocab-expand>summary{color:#89d8b2}.vocab-word-mark{background:#286b4b;color:#e5ffec}}
 @media(max-width:650px){.vocab-table-head{display:none}.vocab-row-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px;gap:6px 10px}.vocab-cell:nth-child(3){grid-column:1/3}.vocab-example-cell{grid-column:1/3}.vocab-remove{grid-column:3;grid-row:1/3}.vocab-cell:before{content:attr(data-label) " ";font-size:10px;font-weight:700;color:#7a9186}.vocab-example-grid{grid-template-columns:1fr;gap:8px}}
-</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V72</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
+
+/* V73: consistent sortable headers and compact live search */
+.vocab-filter-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vocab-search-field{display:flex!important;align-items:center;position:relative;min-width:215px;flex:1 1 230px;max-width:360px}
+.vocab-search-field input{width:100%;height:36px;padding:7px 12px 7px 31px;font-size:12px;background:var(--ui-surface);color:var(--ui-ink);border:1px solid var(--ui-border);border-radius:9px}
+.vocab-search-icon{position:absolute;left:10px;font-size:19px;line-height:1;color:#718b7e;pointer-events:none}
+.vocab-sort-heading{appearance:none;display:inline-flex;align-items:center;gap:6px;justify-content:flex-start;width:100%;min-width:0;border:0;background:transparent!important;color:inherit!important;padding:0;font:inherit;font-weight:700;text-align:left;cursor:pointer;box-shadow:none;transform:none!important}
+.vocab-sort-heading:hover,.vocab-sort-heading.is-active{color:#176b59!important}
+.vocab-sort-icon{font-size:10px;opacity:.6}
+.vocab-sort-heading.is-active .vocab-sort-icon{opacity:1}
+@media(prefers-color-scheme:dark){.vocab-sort-heading:hover,.vocab-sort-heading.is-active{color:#89d8b2!important}}
+@media(max-width:650px){.vocab-filter-controls{width:100%}.vocab-search-field{max-width:none}.vocab-list-controls{align-items:stretch}}
+</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V73</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
 <section id="library" class="ui-card library-card">
  <div class="ui-section-heading"><div><h2>📚 Kitaplığım</h2><p class="ui-muted">Kitabını seç ve okumaya devam et</p></div>
  <details class="ui-menu"><summary aria-label="Kitap işlemleri">Kitap işlemleri <span class="ui-chevron">⌄</span></summary><div class="ui-menu-content"><button class="ui-danger" onclick="deleteBook()">Seçili kitabı kaldır</button><p class="ui-muted">Yalnızca seçili kitabı kitaplıktan kaldırır.</p></div></details></div>
@@ -165,7 +177,7 @@ button:active{transform:translateY(1px)}
 <div class="cols ui-word-fields"><div class="field"><label>🇹🇷 Türkçe</label><input id="tr" placeholder="Türkçe"></div><div class="field"><label>🇩🇪 Almanca (artikel dahil)</label><input id="de" placeholder="der / die / das + kelime" oninput="preview()"><div id="articlePreview" class="note"></div></div><div class="field"><label>🇬🇧 İngilizce</label><input id="en" placeholder="English"></div></div>
 <div class="ui-save-row"><button class="primary" onclick="saveWord()">Üç dilde kaydet</button><button onclick="clearFields()">Temizle</button><span id="storageNote" class="note">Kelimeler otomatik olarak tarayıcıda saklanır.</span></div>
 <div class="ui-vocab-divider"></div>
-<div class="ui-list-controls"><h3>Kaydedilen kelimeler</h3><label>Kitap <select id="wordBookFilter" onchange="renderSaved()"><option value="all">Tüm kitaplar</option></select></label></div>
+<div class="ui-list-controls"><h3>Kaydedilen kelimeler</h3><div class="vocab-filter-controls"><label class="vocab-search-field"><span class="vocab-search-icon" aria-hidden="true">⌕</span><input id="wordSearch" type="search" placeholder="Üç dilde kelime ara…" aria-label="Kaydedilen kelimelerde ara" oninput="renderSaved()" autocomplete="off"></label><label>Kitap <select id="wordBookFilter" onchange="renderSaved()"><option value="all">Tüm kitaplar</option></select></label></div></div>
 <div id="saved"></div></section></main><div id="noteOverlay" class="note-overlay" hidden><div class="note-dialog" role="dialog" aria-modal="true" aria-labelledby="noteHeading"><h2 id="noteHeading">📝 Kelime notu</h2><div id="noteContext" class="note"></div><label for="noteEditor">Notun</label><textarea id="noteEditor" rows="5" placeholder="Bu kelimeyle ilgili notunu yaz…" style="width:100%;font:inherit;padding:10px;border:1px solid #a8c5b9;border-radius:8px;resize:vertical"></textarea><p id="noteStatus" class="note"></p><div class="actions"><button class="primary" onclick="saveSelectedNote()">Notu kaydet</button><button onclick="deleteSelectedNote()">Notu sil</button><button onclick="closeNote()">Kapat</button></div></div></div><script>
 // Early diagnostic bootstrap: independent from the large book data / translation script.
 (function(){
@@ -989,16 +1001,44 @@ function exampleSentenceMarkup(sentence,word){
  if(index<0)return esc(text);
  return esc(text.slice(0,index))+'<mark class="vocab-word-mark">'+esc(text.slice(index,index+needle.length))+'</mark>'+esc(text.slice(index+needle.length));
 }
+/* V73: in-place language sorting and live vocabulary search. */
+let vocabSortLang='tr',vocabSortDirection=1;
+const vocabCollators={
+ tr:new Intl.Collator('tr',{sensitivity:'base',numeric:true,ignorePunctuation:true}),
+ de:new Intl.Collator('de',{sensitivity:'base',numeric:true,ignorePunctuation:true}),
+ en:new Intl.Collator('en',{sensitivity:'base',numeric:true,ignorePunctuation:true})
+};
+function vocabularySortValue(value,lang){
+ let result=String(value||'').trim();
+ if(lang==='de')result=result.replace(/^(der|die|das)\s+/i,'');
+ return result;
+}
+function setVocabSort(lang){
+ if(!['tr','de','en'].includes(lang))return;
+ if(vocabSortLang===lang)vocabSortDirection*=-1;
+ else{vocabSortLang=lang;vocabSortDirection=1}
+ renderSaved();
+}
+function vocabSortHeading(lang,label){
+ const active=vocabSortLang===lang;
+ return '<button type="button" class="vocab-sort-heading'+(active?' is-active':'')+'" onclick="setVocabSort(\''+lang+'\')" aria-label="'+label+' diline göre sırala" title="'+label+' diline göre '+(active&&vocabSortDirection===1?'Z–A':'A–Z')+' sırala">'+label+' <span class="vocab-sort-icon" aria-hidden="true">'+(active?(vocabSortDirection===1?'▲':'▼'):'▴')+'</span></button>';
+}
 function renderSaved(){
  const selector=$('wordBookFilter');if(!selector)return;
  const previous=selector.value;
  selector.innerHTML='<option value="all">Tüm kitaplar</option><option value="current">Okunan kitap</option><option value="other">Diğer kitaplar</option>';
  selector.value=['all','current','other'].includes(previous)?previous:'all';
  const f=selector.value;
+ const search=($('wordSearch')?.value||'').trim().toLocaleLowerCase('tr');
  const filtered=words.map((w,i)=>({w,i})).filter(({w})=>{
-  const ids=bookIds(w);return f==='all'||(f==='current'?ids.includes(currentBook):!ids.includes(currentBook));
+  const ids=bookIds(w);
+  const bookMatches=f==='all'||(f==='current'?ids.includes(currentBook):!ids.includes(currentBook));
+  const wordMatches=!search||w.some(v=>String(v||'').toLocaleLowerCase('tr').includes(search));
+  return bookMatches&&wordMatches;
  });
- $('saved').innerHTML='<div class="vocab-count">'+filtered.length+' kelime · toplam '+words.length+'</div><div class="vocab-table"><div class="vocab-table-head"><span>🇹🇷 Türkçe</span><span>🇩🇪 Almanca</span><span>🇬🇧 İngilizce</span><span>Örnek</span><span></span></div>'+
+ const langIndex={tr:0,de:1,en:2}[vocabSortLang],collator=vocabCollators[vocabSortLang];
+ filtered.sort((a,b)=>vocabSortDirection*collator.compare(vocabularySortValue(a.w[langIndex],vocabSortLang),vocabularySortValue(b.w[langIndex],vocabSortLang))||a.i-b.i);
+ $('saved').innerHTML='<div class="vocab-count">'+filtered.length+' kelime · toplam '+words.length+'</div><div class="vocab-table"><div class="vocab-table-head">'+vocabSortHeading('tr','🇹🇷 Türkçe')+vocabSortHeading('de','🇩🇪 Almanca')+vocabSortHeading('en','🇬🇧 İngilizce')+'<span>Örnek</span><span></span></div>'+
  filtered.map(({w,i})=>{
   const examples=Array.isArray(wordExamples[wordKey(w)])?wordExamples[wordKey(w)]:[];
   const books=bookIds(w).map(id=>esc(bookLabel(id))).join(', ')||'Eski kayıt · kitap bilgisi yok';
