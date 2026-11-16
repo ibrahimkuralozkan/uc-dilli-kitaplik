@@ -147,7 +147,7 @@ button:active{transform:translateY(1px)}
 .vocab-sort-heading.is-active .vocab-sort-icon{opacity:1}
 @media(prefers-color-scheme:dark){.vocab-sort-heading:hover,.vocab-sort-heading.is-active{color:#89d8b2!important}}
 @media(max-width:650px){.vocab-filter-controls{width:100%}.vocab-search-field{max-width:none}.vocab-list-controls{align-items:stretch}}
-</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V74</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
+</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V75</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
 <section id="library" class="ui-card library-card">
  <div class="ui-section-heading"><div><h2>📚 Kitaplığım</h2><p class="ui-muted">Kitabını seç ve okumaya devam et</p></div>
  <details class="ui-menu"><summary aria-label="Kitap işlemleri">Kitap işlemleri <span class="ui-chevron">⌄</span></summary><div class="ui-menu-content"><button class="ui-danger" onclick="deleteBook()">Seçili kitabı kaldır</button><p class="ui-muted">Yalnızca seçili kitabı kitaplıktan kaldırır.</p></div></details></div>
@@ -978,12 +978,23 @@ try{if('BroadcastChannel' in window){vocabChannel=new BroadcastChannel('three-la
 window.addEventListener('storage',e=>{if(e.key===FALLBACK_PREFIX+VOCAB_STATE_KEY&&storageMode==='local')vocabQueue.then(refreshVocabulary)});
 function persist(){if(!vocabReady)return;const snapshot=words.map(w=>w.slice()),tags=JSON.parse(JSON.stringify(wordBooks));queueVocabChange(state=>{const deleted=new Set(state.deleted);for(const row of snapshot){const k=wordKey(row);if(!deleted.has(k)&&!state.words.some(w=>wordKey(w)===k))state.words.push(row)}for(const [k,ids] of Object.entries(tags)){if(!deleted.has(k))state.wordBooks[k]=[...new Set([...(state.wordBooks[k]||[]),...ids])]} });}
 
+/* V75: Compare the selected word with its own language field, ignoring German articles.
+   Preserve the original selection and page to prevent attaching unrelated examples. */
+function vocabularySelectedWordMatches(selected,stored,lang){
+ const normalize=(value)=>{
+  let v=String(value||'').normalize('NFC').trim();
+  if(lang==='de')v=v.replace(/^(der|die|das)\s+/i,'');
+  return cleanWord(v).toLocaleLowerCase(lang==='tr'?'tr':'de');
+ };
+ return !!normalize(selected)&&normalize(selected)===normalize(stored);
+}
 function saveWord(){
  const row=['tr','de','en'].map(l=>$(l).value.trim());
  if(row.some(x=>!x)){$('status').textContent='Üç kutuyu doldur.';return}
  const k=wordKey(row);
  const context=picked?.context&&picked.context.book===currentBook
-  &&['tr','de','en'].some((lang,i)=>cleanWord(picked.text).toLocaleLowerCase('tr')===cleanWord(row[i]).toLocaleLowerCase('tr'))
+  &&picked.context.page===pos+1
+  &&vocabularySelectedWordMatches(picked.text,row[['tr','de','en'].indexOf(picked.lang)],picked.lang)
   ?completeWordSentenceContext(picked.context):null;
  queueVocabChange(state=>{
   state.deleted=state.deleted.filter(x=>x!==k);
