@@ -109,7 +109,33 @@ button{transition:background .15s,border-color .15s,transform .1s}
 button:active{transform:translateY(1px)}
 @media(prefers-color-scheme:dark){:root{--ui-border:#3b4a44;--ui-surface:#1c2321;--ui-soft:#26332d;--ui-ink:#e2eee9;--ui-accent:#68b99b}.ui-muted,.ui-field,.ui-page-input,.ui-word-fields .field label,.ui-list-controls label{color:#a9bcb1}.ui-menu>summary{background:#29473c;color:#e4f5ed;border-color:#49675b}.ui-menu[open]>summary{background:#355c4b}.reading-tools .language-visibility label{background:#26332d;color:#e2eee9}.ui-upload{background:#176b59}.ui-menu-title{color:#adc6b8}}
 @media(max-width:640px){main{padding:10px}.ui-card{padding:13px}.ui-section-heading{align-items:flex-start}.ui-book-picker{flex-basis:100%}.ui-source-picker{flex:1 1 140px}.ui-upload{flex:1 1 140px}.reader-toolbar{align-items:stretch}.ui-page-controls{flex:1}.ui-toolbar-right{margin-left:auto}.reading-tools{align-items:stretch}.reading-tools .language-visibility{width:100%}.ui-save-row #storageNote{margin-left:0;width:100%}.ui-word-fields{grid-template-columns:1fr}}
-</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V71</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
+
+/* V72: compact vocabulary grid with expandable sentence context */
+.vocab-card .ui-list-controls{margin-bottom:8px}
+.vocab-count{font-size:12px;color:#718b7e;margin:0 0 7px}
+.vocab-table{border:1px solid var(--ui-border);border-radius:11px;overflow:hidden}
+.vocab-table-head,.vocab-row-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 78px 40px;gap:12px;align-items:center}
+.vocab-table-head{background:var(--ui-soft);padding:9px 12px;font-size:11px;font-weight:700;color:#667e72}
+.vocab-row{padding:10px 12px;border-top:1px solid var(--ui-border)}
+.vocab-row:first-of-type{border-top:0}
+.vocab-row-main{font-size:13px}
+.vocab-cell{overflow-wrap:anywhere;line-height:1.4}
+.vocab-book-meta{font-size:10px;color:#81968c;margin-top:4px;overflow-wrap:anywhere}
+.vocab-example-cell{font-size:11px;white-space:nowrap}
+.vocab-example-badge{color:#176b59;font-weight:650}
+.vocab-remove{font-size:11px;padding:5px 6px;min-width:38px}
+.vocab-expand{margin-top:7px}
+.vocab-expand>summary{cursor:pointer;font-size:11px;color:#176b59;list-style:none;display:inline-flex;gap:8px;align-items:center;padding:4px 0}
+.vocab-expand>summary::-webkit-details-marker{display:none}
+.vocab-example{padding:11px 12px;margin:6px 0;border-radius:9px;background:var(--ui-soft);border:1px solid var(--ui-border)}
+.vocab-example-source{font-size:11px;font-weight:600;color:#70867d;margin-bottom:7px}
+.vocab-example-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.vocab-example-lang>span{font-size:10px;font-weight:700;color:#738b7f}
+.vocab-example-lang p{margin:4px 0 0;font-size:12px;line-height:1.65;overflow-wrap:anywhere}
+.vocab-word-mark{background:#bcebc9;color:#164d3f;padding:0 2px;border-radius:2px}
+@media(prefers-color-scheme:dark){.vocab-example-badge,.vocab-expand>summary{color:#89d8b2}.vocab-word-mark{background:#286b4b;color:#e5ffec}}
+@media(max-width:650px){.vocab-table-head{display:none}.vocab-row-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px;gap:6px 10px}.vocab-cell:nth-child(3){grid-column:1/3}.vocab-example-cell{grid-column:1/3}.vocab-remove{grid-column:3;grid-row:1/3}.vocab-cell:before{content:attr(data-label) " ";font-size:10px;font-weight:700;color:#7a9186}.vocab-example-grid{grid-template-columns:1fr;gap:8px}}
+</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V72</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
 <section id="library" class="ui-card library-card">
  <div class="ui-section-heading"><div><h2>📚 Kitaplığım</h2><p class="ui-muted">Kitabını seç ve okumaya devam et</p></div>
  <details class="ui-menu"><summary aria-label="Kitap işlemleri">Kitap işlemleri <span class="ui-chevron">⌄</span></summary><div class="ui-menu-content"><button class="ui-danger" onclick="deleteBook()">Seçili kitabı kaldır</button><p class="ui-muted">Yalnızca seçili kitabı kitaplıktan kaldırır.</p></div></details></div>
@@ -450,7 +476,33 @@ function move(n){if(!pages.length)return;activeSentence=null;offlineMode=false;p
 function jump(){if(!pages.length)return;activeSentence=null;offlineMode=false;let n=Number($('pageInput').value);if(Number.isFinite(n)){pos=Math.max(0,Math.min(pages.length-1,n-1));picked=null;render()}}
 function jumpFirst(){offlineFirst()}
 function resume(){offlineMode=false;try{pos=Math.max(0,Math.min(pages.length-1,Number(localStorage.getItem(BOOK)||12)-1))}catch(e){}render()}
-function choose(el,event){if(event)event.stopPropagation();document.querySelectorAll('.chosen').forEach(x=>x.classList.remove('chosen'));el.classList.add('chosen');picked={lang:el.dataset.lang,text:el.textContent};seq++;const sentence=el.closest('.sentence-unit');if(sentence)highlightSentence(Number(sentence.dataset.part),Number(sentence.dataset.sentence),true,el.dataset.lang);showNoteQuickAction(el);$('status').textContent='Seçildi: '+picked.text}
+
+/* V72: Capture the selected word's original sentence and available translations. */
+function captureWordSentenceContext(el){
+ const unit=el.closest('.sentence-unit');if(!unit||currentBook==='none')return null;
+ const part=Number(unit.dataset.part),index=Number(unit.dataset.sentence);
+ const sentences={tr:'',de:'',en:''};
+ for(const lang of ['tr','de','en']){
+  const panel=$(lang+'Text');
+  const found=panel?.querySelector('.sentence-unit[data-part="'+part+'"][data-sentence="'+index+'"]');
+  if(found)sentences[lang]=found.textContent.replace(/\s+/g,' ').trim();
+ }
+ return {book:currentBook,page:pos+1,part,index,lang:el.dataset.lang,sentences};
+}
+function completeWordSentenceContext(context){
+ if(!context)return null;
+ const copy={...context,sentences:{...context.sentences}};
+ if(context.book===currentBook&&context.page===pos+1){
+  for(const lang of ['tr','de','en']){
+   if(copy.sentences[lang])continue;
+   const panel=$(lang+'Text');
+   const found=panel?.querySelector('.sentence-unit[data-part="'+context.part+'"][data-sentence="'+context.index+'"]');
+   if(found)copy.sentences[lang]=found.textContent.replace(/\s+/g,' ').trim();
+  }
+ }
+ return copy;
+}
+function choose(el,event){if(event)event.stopPropagation();document.querySelectorAll('.chosen').forEach(x=>x.classList.remove('chosen'));el.classList.add('chosen');picked={lang:el.dataset.lang,text:el.textContent,context:captureWordSentenceContext(el)};seq++;const sentence=el.closest('.sentence-unit');if(sentence)highlightSentence(Number(sentence.dataset.part),Number(sentence.dataset.sentence),true,el.dataset.lang);showNoteQuickAction(el);$('status').textContent='Seçildi: '+picked.text}
 function cleanWord(s){return String(s).replace(/^[^\p{L}]+|[^\p{L}]+$/gu,'').trim()}
 // Detailed diagnostics; public endpoints may reject local-file requests.
 function translationError(message,permanent=false){const e=new Error(message);e.permanent=permanent;return e}
@@ -867,7 +919,7 @@ async function takeWord(){
 function preview(){let s=$('de').value.trim(),m=s.match(/^(der|die|das)\s+(.+)$/i);$('articlePreview').innerHTML=m?'<b class="article '+m[1].toLowerCase()+'">'+m[1]+'</b> '+esc(m[2]):'İsimlerde artikel: der / die / das'}
 function clearFields(){for(let l of ['tr','de','en'])$(l).value='';preview()}
 // V48: one shared vocabulary, with optional book provenance and filtering.
-let wordBooks={};
+let wordBooks={},wordExamples={};
 function wordKey(row){return row.map(x=>String(x).normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase()).join('\u001f')}
 function bookLabel(id){if(id==='none')return 'Kitap seçilmedi';const option=[...$('bookSelect').options].find(o=>o.value===id);return option?option.textContent:id}
 function bookIds(row){return Array.isArray(wordBooks[wordKey(row)])?wordBooks[wordKey(row)]:[]}
@@ -876,9 +928,10 @@ function addBookTag(row,id=currentBook){if(!id)return false;const k=wordKey(row)
 const VOCAB_STATE_KEY='vocabulary-state-v53';
 let vocabReady=false, vocabQueue=Promise.resolve(), vocabChannel=null;
 function cleanVocabularyState(state){
- const out={words:[],wordBooks:{},deleted:[]};if(!state||typeof state!=='object')return out;
+ const out={words:[],wordBooks:{},examples:{},deleted:[]};if(!state||typeof state!=='object')return out;
  const seen=new Set();for(const w of state.words||[]){if(!Array.isArray(w)||w.length!==3)continue;const k=wordKey(w);if(!seen.has(k)){seen.add(k);out.words.push(w)}}
  out.wordBooks=state.wordBooks&&typeof state.wordBooks==='object'?state.wordBooks:{};
+ out.examples=state.examples&&typeof state.examples==='object'&&!Array.isArray(state.examples)?state.examples:{};
  out.deleted=Array.isArray(state.deleted)?state.deleted:[];return out;
 }
 async function vocabTransaction(change){
@@ -896,18 +949,69 @@ async function vocabTransaction(change){
   tx.oncomplete=()=>resolve(result);tx.onerror=()=>reject(tx.error||Error('Kelime kaydı başarısız'));tx.onabort=()=>reject(tx.error||Error('Kelime işlemi iptal edildi'));
  })
 }
-function refreshVocabulary(){return dataRead(VOCAB_STATE_KEY).then(state=>{if(!state)return;const v=cleanVocabularyState(state);words=v.words;wordBooks=v.wordBooks;renderSaved()}).catch(e=>storageNotice('⚠ Kelimeler okunamadı: '+e.message))}
+function refreshVocabulary(){return dataRead(VOCAB_STATE_KEY).then(state=>{if(!state)return;const v=cleanVocabularyState(state);words=v.words;wordBooks=v.wordBooks;wordExamples=v.examples;renderSaved()}).catch(e=>storageNotice('⚠ Kelimeler okunamadı: '+e.message))}
 function queueVocabChange(change){
  vocabQueue=vocabQueue.then(async()=>{await vocabTransaction(change);await refreshVocabulary();if(vocabChannel)vocabChannel.postMessage('updated');storageNotice('✓ Kelimeler '+(storageMode==='local'?'yerel depoya':'IndexedDB’ye')+' kaydedildi ve doğrulandı.')}).catch(e=>{storageNotice('⚠ Kelime kaydedilemedi: '+e.message);return refreshVocabulary()});return vocabQueue
 }
 try{if('BroadcastChannel' in window){vocabChannel=new BroadcastChannel('three-language-vocabulary-v53');vocabChannel.onmessage=()=>{vocabQueue.then(refreshVocabulary)}}}catch(e){}
 window.addEventListener('storage',e=>{if(e.key===FALLBACK_PREFIX+VOCAB_STATE_KEY&&storageMode==='local')vocabQueue.then(refreshVocabulary)});
 function persist(){if(!vocabReady)return;const snapshot=words.map(w=>w.slice()),tags=JSON.parse(JSON.stringify(wordBooks));queueVocabChange(state=>{const deleted=new Set(state.deleted);for(const row of snapshot){const k=wordKey(row);if(!deleted.has(k)&&!state.words.some(w=>wordKey(w)===k))state.words.push(row)}for(const [k,ids] of Object.entries(tags)){if(!deleted.has(k))state.wordBooks[k]=[...new Set([...(state.wordBooks[k]||[]),...ids])]} });}
-function saveWord(){let row=['tr','de','en'].map(l=>$(l).value.trim());if(row.some(x=>!x)){$('status').textContent='Üç kutuyu doldur.';return}const k=wordKey(row);queueVocabChange(state=>{state.deleted=state.deleted.filter(x=>x!==k);if(!state.words.some(w=>wordKey(w)===k))state.words.push(row);state.wordBooks[k]=[...new Set([...(state.wordBooks[k]||[]),currentBook])]} );$('status').textContent='Kelime kaydediliyor…'}
-function renderSaved(){const selector=$('wordBookFilter');if(!selector)return;const previous=selector.value;selector.innerHTML='<option value="all">Tüm kitaplar</option><option value="current">Okunan kitap</option><option value="other">Diğer kitaplar</option>';selector.value=['all','current','other'].includes(previous)?previous:'all';const f=selector.value;const filtered=words.map((w,i)=>({w,i})).filter(({w})=>{const ids=bookIds(w);return f==='all'||(f==='current'?ids.includes(currentBook):!ids.includes(currentBook))});$('saved').innerHTML='<h3>Kaydedilen kelimeler ('+filtered.length+' / '+words.length+')</h3>'+filtered.map(({w,i})=>'<div class="entry"><button onclick="removeWord('+i+')">Sil</button>🇹🇷 '+esc(w[0])+' &nbsp; 🇩🇪 '+esc(w[1]).replace(/^(der|die|das)\b/i,a=>'<b class="article '+a.toLowerCase()+'">'+a+'</b>')+' &nbsp; 🇬🇧 '+esc(w[2])+'<div class="note">📚 '+(bookIds(w).length?bookIds(w).map(id=>esc(bookLabel(id))).join(', '):'Eski kayıt · kitap bilgisi yok')+'</div></div>').join('')}
-function removeWord(i){const row=words[i];if(!row)return;const k=wordKey(row);queueVocabChange(state=>{state.words=state.words.filter(w=>wordKey(w)!==k);delete state.wordBooks[k];if(!state.deleted.includes(k))state.deleted.push(k)});storageNotice('⏳ Kelime siliniyor…')}
+
+function saveWord(){
+ const row=['tr','de','en'].map(l=>$(l).value.trim());
+ if(row.some(x=>!x)){$('status').textContent='Üç kutuyu doldur.';return}
+ const k=wordKey(row);
+ const context=picked?.context&&picked.context.book===currentBook
+  &&['tr','de','en'].some((lang,i)=>cleanWord(picked.text).toLocaleLowerCase('tr')===cleanWord(row[i]).toLocaleLowerCase('tr'))
+  ?completeWordSentenceContext(picked.context):null;
+ queueVocabChange(state=>{
+  state.deleted=state.deleted.filter(x=>x!==k);
+  if(!state.words.some(w=>wordKey(w)===k))state.words.push(row);
+  state.wordBooks[k]=[...new Set([...(state.wordBooks[k]||[]),currentBook])];
+  if(context){
+   const list=Array.isArray(state.examples[k])?state.examples[k]:[];
+   const identity=context.book+'|'+context.page+'|'+context.part+'|'+context.index;
+   const previous=list.findIndex(e=>e.book+'|'+e.page+'|'+e.part+'|'+e.index===identity);
+   if(previous>=0){
+    const old=list[previous];list[previous]={...context,sentences:Object.fromEntries(['tr','de','en'].map(lang=>[lang,context.sentences[lang]||old.sentences?.[lang]||'']))};
+   }else list.push(context);
+   state.examples[k]=list;
+  }
+ });
+ $('status').textContent=context?'Kelime ve örnek cümlesi kaydediliyor…':'Kelime kaydediliyor… (Örnek cümle için önce metinden kelime seç.)';
+}
+function exampleSentenceMarkup(sentence,word){
+ const text=String(sentence||'');
+ if(!text)return '<span class="ui-muted">Bu dilde cümle henüz mevcut değil.</span>';
+ // Escaped, with matching word visually emphasized if the same form appears.
+ const needle=String(word||'').replace(/^(der|die|das)\s+/i,'').trim();
+ const index=needle?text.toLocaleLowerCase().indexOf(needle.toLocaleLowerCase()):-1;
+ if(index<0)return esc(text);
+ return esc(text.slice(0,index))+'<mark class="vocab-word-mark">'+esc(text.slice(index,index+needle.length))+'</mark>'+esc(text.slice(index+needle.length));
+}
+function renderSaved(){
+ const selector=$('wordBookFilter');if(!selector)return;
+ const previous=selector.value;
+ selector.innerHTML='<option value="all">Tüm kitaplar</option><option value="current">Okunan kitap</option><option value="other">Diğer kitaplar</option>';
+ selector.value=['all','current','other'].includes(previous)?previous:'all';
+ const f=selector.value;
+ const filtered=words.map((w,i)=>({w,i})).filter(({w})=>{
+  const ids=bookIds(w);return f==='all'||(f==='current'?ids.includes(currentBook):!ids.includes(currentBook));
+ });
+ $('saved').innerHTML='<div class="vocab-count">'+filtered.length+' kelime · toplam '+words.length+'</div><div class="vocab-table"><div class="vocab-table-head"><span>🇹🇷 Türkçe</span><span>🇩🇪 Almanca</span><span>🇬🇧 İngilizce</span><span>Örnek</span><span></span></div>'+
+ filtered.map(({w,i})=>{
+  const examples=Array.isArray(wordExamples[wordKey(w)])?wordExamples[wordKey(w)]:[];
+  const books=bookIds(w).map(id=>esc(bookLabel(id))).join(', ')||'Eski kayıt · kitap bilgisi yok';
+  const de=esc(w[1]).replace(/^(der|die|das)\b/i,a=>'<b class="article '+a.toLowerCase()+'">'+a+'</b>');
+  const examplesHTML=examples.map(ex=>'<div class="vocab-example"><div class="vocab-example-source">📖 '+esc(bookLabel(ex.book))+' · '+(Number(ex.page)||'?')+'. sayfa</div><div class="vocab-example-grid">'+
+   ['tr','de','en'].map((lang,j)=>'<div class="vocab-example-lang"><span>'+['TR','DE','EN'][j]+'</span><p>'+exampleSentenceMarkup(ex.sentences?.[lang],w[j])+'</p></div>').join('')+'</div></div>').join('');
+  return '<div class="vocab-row"><div class="vocab-row-main"><div class="vocab-cell" data-label="TR">'+esc(w[0])+'</div><div class="vocab-cell" data-label="DE">'+de+'</div><div class="vocab-cell" data-label="EN">'+esc(w[2])+'</div><div class="vocab-example-cell">'+(examples.length?'<span class="vocab-example-badge">'+examples.length+' cümle</span>':'<span class="ui-muted">—</span>')+'</div><button class="vocab-remove" onclick="removeWord('+i+')" aria-label="Kelimeyi sil" title="Kelimeyi sil">Sil</button></div><div class="vocab-book-meta">📚 '+books+'</div>'+
+  (examples.length?'<details class="vocab-expand"><summary>Örnek cümleleri göster <span>⌄</span></summary>'+examplesHTML+'</details>':'')+'</div>';
+ }).join('')+'</div>';
+}
+function removeWord(i){const row=words[i];if(!row)return;const k=wordKey(row);queueVocabChange(state=>{state.words=state.words.filter(w=>wordKey(w)!==k);delete state.wordBooks[k];delete state.examples[k];if(!state.deleted.includes(k))state.deleted.push(k)});storageNotice('⏳ Kelime siliniyor…')}
 function downloadCSV(){let lines=[['Türkçe','Almanca','İngilizce','Kitap kimlikleri'],...words.map(w=>[...w,bookIds(w).join('|')])].map(r=>r.map(s=>'"'+String(s).replace(/"/g,'""')+'"').join(';'));let b=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='uc_dilli_kelimeler.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
-function downloadWordsJSON(){const blob=new Blob([JSON.stringify({format:'three-language-vocabulary',version:2,words,wordBooks},null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='uc_dilli_kelimeler.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),30000)}
+function downloadWordsJSON(){const blob=new Blob([JSON.stringify({format:'three-language-vocabulary',version:3,words,wordBooks,examples:wordExamples},null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='uc_dilli_kelimeler.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),30000)}
 function parseVocabularyCSV(text){
  text=text.replace(/^\uFEFF/,'');const firstLine=text.split(/\r?\n/,1)[0];const delimiter=firstLine.includes(';')?';':firstLine.includes('\t')?'\t':',';const rows=[];let row=[],field='',quoted=false;
  for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"')quoted=false;else field+=c}
@@ -920,9 +1024,9 @@ function parseVocabularyCSV(text){
 async function importBackup(input){
  const f=input.files?.[0];if(!f)return;
  try{
-  const content=await f.text();let rows,meta={};
+  const content=await f.text();let rows,meta={},exampleMeta={};
   if(/\.csv$/i.test(f.name)||(!/\.json$/i.test(f.name)&&!/^\s*[\[{]/.test(content))){rows=parseVocabularyCSV(content)}
-  else{const obj=JSON.parse(content);rows=Array.isArray(obj)?obj:obj.words;meta=obj.wordBooks||{}}
+  else{const obj=JSON.parse(content);rows=Array.isArray(obj)?obj:obj.words;meta=obj.wordBooks||{};exampleMeta=obj.examples||{}}
   if(!Array.isArray(rows))throw Error('Kelime listesi bulunamadı');
   let added=0,duplicates=0,invalid=0,tagged=0;
   await queueVocabChange(state=>{
@@ -933,6 +1037,7 @@ async function importBackup(input){
     state.deleted=state.deleted.filter(k=>k!==key);
     const ids=[...(Array.isArray(meta[key])?meta[key]:[]),...(typeof raw[3]==='string'?raw[3].split('|'):[])].filter(Boolean);
     const old=state.wordBooks[key]||[];state.wordBooks[key]=[...new Set([...old,...ids])];tagged+=state.wordBooks[key].length-old.length;
+    if(Array.isArray(exampleMeta[key])){const list=Array.isArray(state.examples[key])?state.examples[key]:[];for(const ex of exampleMeta[key]){if(!ex||typeof ex!=='object'||!ex.sentences||!ex.book)continue;const identity=e=>e.book+'|'+e.page+'|'+e.part+'|'+e.index;if(!list.some(old=>identity(old)===identity(ex)))list.push(ex)}if(list.length)state.examples[key]=list;}
    }
   });
   $('status').textContent='✓ '+added+' yeni kelime, '+duplicates+' tekrar; '+tagged+' kitap eşleştirmesi eklendi; '+invalid+' geçersiz satır atlandı.';
