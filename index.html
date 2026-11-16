@@ -44,7 +44,103 @@
 .reading-cols>.panel[hidden]{display:none!important}
 @media(max-width:850px){.reading-cols{grid-template-columns:1fr}}
 @media(prefers-color-scheme:dark){.language-visibility label{background:#203b32;color:#e2eee9;border-color:#49675b}}
-</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V70</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main><section id="library" style="margin-top:0"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px"><h2 style="margin:0">📚 Kitaplığım</h2><select id="bookSelect" onchange="switchBook(this.value)" aria-label="Kitap seç"><option value="none">Kitap seçin</option></select><label style="display:flex;align-items:center;gap:6px">Kaynak dil <select id="pdfSourceLang" aria-label="PDF kaynak dili"><option value="auto">Otomatik algıla</option><option value="tr">🇹🇷 Türkçe</option><option value="de">🇩🇪 Almanca</option><option value="en">🇬🇧 İngilizce</option></select></label><input type="file" id="pdfInput" accept=".pdf,.epub,application/pdf,application/epub+zip" style="font-size:14px;max-width:230px" aria-label="PDF veya EPUB dosyası seç — otomatik kitaplığa eklenir"><button onclick="deleteBook()">Seçili PDF'yi kaldır</button></div><p class="note" id="libraryStatus" style="font-weight:600;white-space:pre-wrap;color:#8b3a22">Metin seçilebilen PDF ve DRM korumasız EPUB dosyaları desteklenir; OCR yoktur. Okuyucular ilk yüklemede internet bağlantısı gerektirir. Dosya seçince durum burada görünür.</p></section><nav><button onclick="move(-1)">← Önceki sayfa</button><button onclick="move(1)">Sonraki sayfa →</button><label>Sayfa / bölüm <input type="number" id="pageInput" min="1" max="1477" onchange="jump()"></label><span id="pageLabel"></span></nav><nav><button onclick="downloadCSV()">CSV dışa aktar</button><span class="note" id="translationStatus"></span></nav><nav style="margin:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center"><button onclick="exportTranslations()">📤 Çevirileri dışa aktar (JSON)</button><button onclick="exportTranslationsCSV()">📤 Çevirileri dışa aktar (CSV)</button><label style="display:inline-flex;align-items:center;gap:6px;border:1px solid #a8c5b9;border-radius:8px;padding:7px 10px;cursor:pointer;background:#f1f8f3">📥 Çevirileri içe aktar (JSON/CSV) <input id="translationImport" type="file" accept=".json,.csv,application/json,text/csv" onchange="importTranslations(this)" style="max-width:185px"/></label><span id="transferStatus" class="note"></span></nav><nav><button onclick="saveTextHighlight()">🖍️ Seçili metni vurgula</button><button onclick="removeTextHighlight()">Vurguyu kaldır</button><span id="highlightStatus" class="note">Cümle veya paragraf seçerek kalıcı vurgulayabilirsin.</span></nav><div class="language-visibility" role="group" aria-label="Görüntülenecek diller"><label><input type="checkbox" id="showTr" checked onchange="toggleReadingLanguage('tr',this.checked)"> 🇹🇷 Türkçe</label><label><input type="checkbox" id="showDe" onchange="toggleReadingLanguage('de',this.checked)"> 🇩🇪 Deutsch</label><label><input type="checkbox" id="showEn" onchange="toggleReadingLanguage('en',this.checked)"> 🇬🇧 English</label></div><div class="cols reading-cols" id="readingCols"><article class="panel" data-reading-lang="tr"><h3>🇹🇷 Türkçe · PDF metni</h3><div class="text" id="trText"></div></article><article class="panel" data-reading-lang="de"><h3>🇩🇪 Deutsch · otomatik çeviri</h3><div class="text" id="deText"></div></article><article class="panel" data-reading-lang="en"><h3>🇬🇧 English · automatic translation</h3><div class="text" id="enText"></div></article></div><section><h2>📝 Üç dilli kelime defteri</h2><p class="note">Metindeki bir kelimeye dokun, ardından <b>Seçili kelimeyi al</b>. İnternet varsa diğer iki dilde karşılığı aranır. Çevirileri kaydetmeden önce kontrol et.</p><button class="primary" onclick="takeWord()">Seçili kelimeyi al</button> <button onclick="openSelectedNote()">📝 Seçili kelimeye not ekle / düzenle</button> <span id="status" class="note">Hazır.</span><div class="cols" style="margin-top:12px"><div class="field"><label>🇹🇷 Türkçe</label><input id="tr" placeholder="Türkçe"></div><div class="field"><label>🇩🇪 Almanca (artikel dahil)</label><input id="de" placeholder="der / die / das + kelime" oninput="preview()"><div id="articlePreview" class="note"></div></div><div class="field"><label>🇬🇧 İngilizce</label><input id="en" placeholder="English"></div></div><div class="actions"><button class="primary" onclick="saveWord()">Üç dilde kaydet</button><button onclick="clearFields()">Temizle</button><button onclick="downloadCSV()">CSV dışa aktar</button><button onclick="downloadWordsJSON()">JSON dışa aktar</button><label style="display:inline-flex;align-items:center;gap:6px">📥 Kelimeleri birleştir (JSON/CSV) <input type="file" accept=".json,.csv,application/json,text/csv" onchange="importBackup(this)" style="max-width:180px"></label></div><div class="actions" style="margin-top:12px"><button onclick="downloadNotesJSON()">📝 Notları dışa aktar (JSON)</button><button onclick="downloadNotesCSV()">📝 Notları dışa aktar (CSV)</button><label>📝 Notları birleştir (JSON/CSV) <input type="file" accept=".json,.csv" onchange="importNotes(this)" style="max-width:180px"></label><span id="notesTransferStatus" class="note"></span></div><p id="storageNote" class="note">Kelimeler otomatik olarak tarayıcıda saklanır.</p><label style="display:block;margin:12px 0">📚 Kelimeleri göster: <select id="wordBookFilter" onchange="renderSaved()"><option value="all">Tüm kitaplar</option></select></label><div id="saved"></div></section></main><div id="noteOverlay" class="note-overlay" hidden><div class="note-dialog" role="dialog" aria-modal="true" aria-labelledby="noteHeading"><h2 id="noteHeading">📝 Kelime notu</h2><div id="noteContext" class="note"></div><label for="noteEditor">Notun</label><textarea id="noteEditor" rows="5" placeholder="Bu kelimeyle ilgili notunu yaz…" style="width:100%;font:inherit;padding:10px;border:1px solid #a8c5b9;border-radius:8px;resize:vertical"></textarea><p id="noteStatus" class="note"></p><div class="actions"><button class="primary" onclick="saveSelectedNote()">Notu kaydet</button><button onclick="deleteSelectedNote()">Notu sil</button><button onclick="closeNote()">Kapat</button></div></div></div><script>
+
+/* V71: coherent compact application interface; behavior and control IDs unchanged */
+:root{--ui-border:#d6e3dc;--ui-surface:#fff;--ui-soft:#f4f8f6;--ui-ink:#18352f;--ui-accent:#176b59}
+header{padding:15px max(18px,calc((100vw - 1500px)/2 + 12px));box-shadow:0 2px 10px #0000000c}
+header h1{font-size:21px;letter-spacing:-.4px}header p{opacity:.85}
+main{padding:16px 16px 42px;max-width:1530px}
+.ui-card{background:var(--ui-surface);border:1px solid var(--ui-border);border-radius:14px;padding:18px;overflow:visible}
+.ui-card h2{font-size:19px;letter-spacing:-.4px;margin:0}
+.ui-muted{font-size:12px;color:#70867d;margin:3px 0 0}
+.ui-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.ui-library-controls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+.ui-field{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:650;color:#526c60}
+.ui-field select{height:39px;max-width:100%;font-size:13px}
+.ui-book-picker{flex:1 1 330px;min-width:180px}.ui-book-picker select{width:100%}
+.ui-source-picker{flex:0 1 165px}
+.ui-upload{height:39px;display:inline-flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:9px;background:#176b59;color:#fff;padding:0 16px;font-size:13px;font-weight:650;cursor:pointer;white-space:nowrap}
+.ui-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:100px}
+.ui-library-status{font-size:12px!important;font-weight:400!important;margin:10px 0 0;line-height:1.45;white-space:pre-wrap}
+.reader-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:13px 0 7px}
+.ui-page-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ui-page-controls button,.reading-tools button,.ui-word-toolbar button,.ui-save-row button{height:37px;padding:7px 12px;font-size:13px}
+.ui-page-input{display:flex;align-items:center;gap:7px;font-size:13px;color:#526c60}
+.ui-page-input input{width:68px;height:37px;padding:6px 8px;font-size:13px}
+.ui-page-controls #pageLabel{font-size:12px}
+.ui-menu{position:relative;flex-shrink:0}
+.ui-menu>summary{list-style:none;display:flex;align-items:center;gap:8px;justify-content:space-between;border:1px solid #b5c9c1;background:#e9f2ed;color:#164d3f;border-radius:9px;padding:9px 12px;cursor:pointer;font-size:13px;font-weight:600;min-height:37px;user-select:none}
+.ui-menu>summary::-webkit-details-marker{display:none}
+.ui-chevron{opacity:.65;font-size:14px}
+.ui-menu[open]>summary{background:#d9ebe1}
+.ui-menu-content{position:absolute;right:0;top:calc(100% + 5px);width:245px;max-width:calc(100vw - 36px);background:var(--ui-surface);border:1px solid var(--ui-border);box-shadow:0 12px 32px #0002;border-radius:12px;padding:10px;z-index:120;display:flex;flex-direction:column;gap:5px}
+.ui-menu-content button,.ui-import-label{display:block;text-align:left;width:100%;font-size:13px;padding:9px 10px;border-radius:8px;background:var(--ui-soft);border:1px solid transparent;color:var(--ui-ink);cursor:pointer;line-height:1.4}
+.ui-menu-content button:hover,.ui-import-label:hover{border-color:#91b8a5}
+.ui-menu-title{font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:#718b7e;padding:8px 7px 3px}
+.ui-import-label{position:relative;overflow:hidden}
+.ui-import-label input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:100px}
+.ui-danger{color:#a23930!important}
+.ui-status-line{display:flex;align-items:center;gap:7px;margin:4px 0 12px;font-size:12px;min-height:16px}
+.ui-status-dot{width:7px;height:7px;border-radius:50%;background:#50a783;flex-shrink:0}
+.reading-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:9px 11px;border:1px solid var(--ui-border);background:var(--ui-soft);border-radius:11px}
+.ui-highlight-actions{display:flex;gap:7px;flex-wrap:wrap}
+.reading-tools .language-visibility{margin:0;gap:6px}
+.reading-tools .language-visibility label{padding:6px 9px;font-size:12px;background:var(--ui-surface)}
+.reading-tools .language-visibility input{width:16px;height:16px}
+.ui-inline-status{font-size:11px;margin:5px 2px 9px;min-height:13px}
+.reading-cols{gap:12px}
+.reading-cols .panel{border-radius:12px}
+.reading-cols .panel h3{font-size:13px;font-weight:700;padding:11px 14px}
+.vocab-card{margin-top:16px}
+.ui-word-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.ui-word-toolbar .note{font-size:12px}
+.ui-word-fields{gap:12px;margin:0 0 12px}
+.ui-word-fields .field label{font-size:12px;color:#526c60;margin-bottom:5px}
+.ui-word-fields .field input{height:40px;font-size:14px}
+.ui-save-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ui-save-row #storageNote{margin-left:auto;font-size:11px}
+.ui-vocab-divider{border-top:1px solid var(--ui-border);margin:17px 0 13px}
+.ui-list-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.ui-list-controls h3{font-size:15px;margin:0}
+.ui-list-controls label{display:flex;align-items:center;gap:8px;font-size:12px;color:#526c60}
+.ui-list-controls select{font-size:12px;padding:7px 10px}
+#saved .entry{border:1px solid var(--ui-border);padding:11px 12px;border-radius:10px}
+button{transition:background .15s,border-color .15s,transform .1s}
+button:active{transform:translateY(1px)}
+@media(prefers-color-scheme:dark){:root{--ui-border:#3b4a44;--ui-surface:#1c2321;--ui-soft:#26332d;--ui-ink:#e2eee9;--ui-accent:#68b99b}.ui-muted,.ui-field,.ui-page-input,.ui-word-fields .field label,.ui-list-controls label{color:#a9bcb1}.ui-menu>summary{background:#29473c;color:#e4f5ed;border-color:#49675b}.ui-menu[open]>summary{background:#355c4b}.reading-tools .language-visibility label{background:#26332d;color:#e2eee9}.ui-upload{background:#176b59}.ui-menu-title{color:#adc6b8}}
+@media(max-width:640px){main{padding:10px}.ui-card{padding:13px}.ui-section-heading{align-items:flex-start}.ui-book-picker{flex-basis:100%}.ui-source-picker{flex:1 1 140px}.ui-upload{flex:1 1 140px}.reader-toolbar{align-items:stretch}.ui-page-controls{flex:1}.ui-toolbar-right{margin-left:auto}.reading-tools{align-items:stretch}.reading-tools .language-visibility{width:100%}.ui-save-row #storageNote{margin-left:0;width:100%}.ui-word-fields{grid-template-columns:1fr}}
+</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V71</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
+<section id="library" class="ui-card library-card">
+ <div class="ui-section-heading"><div><h2>📚 Kitaplığım</h2><p class="ui-muted">Kitabını seç ve okumaya devam et</p></div>
+ <details class="ui-menu"><summary aria-label="Kitap işlemleri">Kitap işlemleri <span class="ui-chevron">⌄</span></summary><div class="ui-menu-content"><button class="ui-danger" onclick="deleteBook()">Seçili kitabı kaldır</button><p class="ui-muted">Yalnızca seçili kitabı kitaplıktan kaldırır.</p></div></details></div>
+ <div class="ui-library-controls"><label class="ui-field ui-book-picker"><span>Kitap seç</span><select id="bookSelect" onchange="switchBook(this.value)" aria-label="Kitap seç"><option value="none">Kitap seçin</option></select></label>
+ <label class="ui-field ui-source-picker"><span>Kaynak dil</span><select id="pdfSourceLang" aria-label="PDF kaynak dili"><option value="auto">Otomatik algıla</option><option value="tr">🇹🇷 Türkçe</option><option value="de">🇩🇪 Almanca</option><option value="en">🇬🇧 İngilizce</option></select></label>
+ <label class="ui-upload"><span>＋ PDF / EPUB ekle</span><input type="file" id="pdfInput" accept=".pdf,.epub,application/pdf,application/epub+zip" aria-label="PDF veya EPUB dosyası seç — otomatik kitaplığa eklenir"></label></div>
+ <p class="note ui-library-status" id="libraryStatus">Metin seçilebilen PDF ve DRM korumasız EPUB dosyaları desteklenir; OCR yoktur. Okuyucular ilk yüklemede internet bağlantısı gerektirir. Dosya seçince durum burada görünür.</p>
+</section>
+<div class="reader-toolbar">
+ <div class="ui-page-controls"><button onclick="move(-1)" aria-label="Önceki sayfa">← Önceki</button><label class="ui-page-input">Sayfa <input type="number" id="pageInput" min="1" max="1477" onchange="jump()"></label><button onclick="move(1)" aria-label="Sonraki sayfa">Sonraki →</button><span id="pageLabel" class="ui-muted"></span></div>
+ <div class="ui-toolbar-right">
+ <details class="ui-menu"><summary>📤 Dışa aktar / içe aktar <span class="ui-chevron">⌄</span></summary><div class="ui-menu-content"><div class="ui-menu-title">Çeviriler</div><button onclick="exportTranslations()">JSON dışa aktar</button><button onclick="exportTranslationsCSV()">CSV dışa aktar</button><label class="ui-import-label">JSON / CSV içe aktar<input id="translationImport" type="file" accept=".json,.csv,application/json,text/csv" onchange="importTranslations(this)"></label><div class="ui-menu-title">Kelime defteri</div><button onclick="downloadCSV()">Kelimeler: CSV dışa aktar</button><span id="transferStatus" class="note"></span></div></details>
+ </div>
+</div>
+<div class="ui-status-line"><span class="ui-status-dot"></span><span class="note" id="translationStatus"></span></div>
+<div class="reading-tools">
+ <div class="ui-highlight-actions"><button onclick="saveTextHighlight()">🖍️ Vurgula</button><button onclick="removeTextHighlight()">Vurguyu kaldır</button></div>
+ <div class="language-visibility" role="group" aria-label="Görüntülenecek diller"><label><input type="checkbox" id="showTr" checked onchange="toggleReadingLanguage('tr',this.checked)"> 🇹🇷 Türkçe</label><label><input type="checkbox" id="showDe" onchange="toggleReadingLanguage('de',this.checked)"> 🇩🇪 Deutsch</label><label><input type="checkbox" id="showEn" onchange="toggleReadingLanguage('en',this.checked)"> 🇬🇧 English</label></div>
+</div>
+<div class="ui-inline-status note" id="highlightStatus">Cümle veya paragraf seçerek kalıcı vurgulayabilirsin.</div>
+<div class="cols reading-cols" id="readingCols"><article class="panel" data-reading-lang="tr"><h3>🇹🇷 Türkçe · PDF metni</h3><div class="text" id="trText"></div></article><article class="panel" data-reading-lang="de"><h3>🇩🇪 Deutsch · otomatik çeviri</h3><div class="text" id="deText"></div></article><article class="panel" data-reading-lang="en"><h3>🇬🇧 English · automatic translation</h3><div class="text" id="enText"></div></article></div><section class="ui-card vocab-card"><div class="ui-section-heading"><div><h2>📝 Üç dilli kelime defteri</h2><p class="ui-muted">Seçtiğin kelimeleri üç dilde sakla, not ekle ve tekrar et.</p></div>
+<details class="ui-menu"><summary>Veri işlemleri <span class="ui-chevron">⌄</span></summary><div class="ui-menu-content">
+<div class="ui-menu-title">Kelimeler</div><button onclick="downloadCSV()">CSV dışa aktar</button><button onclick="downloadWordsJSON()">JSON dışa aktar</button><label class="ui-import-label">JSON / CSV birleştir<input type="file" accept=".json,.csv,application/json,text/csv" onchange="importBackup(this)"></label>
+<div class="ui-menu-title">Notlar</div><button onclick="downloadNotesJSON()">Notları JSON dışa aktar</button><button onclick="downloadNotesCSV()">Notları CSV dışa aktar</button><label class="ui-import-label">Notları JSON / CSV birleştir<input type="file" accept=".json,.csv" onchange="importNotes(this)"></label><span id="notesTransferStatus" class="note"></span>
+</div></details></div>
+<div class="ui-word-toolbar"><button class="primary" onclick="takeWord()">＋ Seçili kelimeyi al</button><button onclick="openSelectedNote()">📝 Kelime notu</button><span id="status" class="note">Hazır.</span></div>
+<div class="cols ui-word-fields"><div class="field"><label>🇹🇷 Türkçe</label><input id="tr" placeholder="Türkçe"></div><div class="field"><label>🇩🇪 Almanca (artikel dahil)</label><input id="de" placeholder="der / die / das + kelime" oninput="preview()"><div id="articlePreview" class="note"></div></div><div class="field"><label>🇬🇧 İngilizce</label><input id="en" placeholder="English"></div></div>
+<div class="ui-save-row"><button class="primary" onclick="saveWord()">Üç dilde kaydet</button><button onclick="clearFields()">Temizle</button><span id="storageNote" class="note">Kelimeler otomatik olarak tarayıcıda saklanır.</span></div>
+<div class="ui-vocab-divider"></div>
+<div class="ui-list-controls"><h3>Kaydedilen kelimeler</h3><label>Kitap <select id="wordBookFilter" onchange="renderSaved()"><option value="all">Tüm kitaplar</option></select></label></div>
+<div id="saved"></div></section></main><div id="noteOverlay" class="note-overlay" hidden><div class="note-dialog" role="dialog" aria-modal="true" aria-labelledby="noteHeading"><h2 id="noteHeading">📝 Kelime notu</h2><div id="noteContext" class="note"></div><label for="noteEditor">Notun</label><textarea id="noteEditor" rows="5" placeholder="Bu kelimeyle ilgili notunu yaz…" style="width:100%;font:inherit;padding:10px;border:1px solid #a8c5b9;border-radius:8px;resize:vertical"></textarea><p id="noteStatus" class="note"></p><div class="actions"><button class="primary" onclick="saveSelectedNote()">Notu kaydet</button><button onclick="deleteSelectedNote()">Notu sil</button><button onclick="closeNote()">Kapat</button></div></div></div><script>
 // Early diagnostic bootstrap: independent from the large book data / translation script.
 (function(){
  var field=document.getElementById('pdfInput');
