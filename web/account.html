@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hesabım · Üç Dilli Kitaplık</title><link rel="stylesheet" href="/auth.css"><script defer src="/reader-storage.js"></script><script defer src="/auth.js"></script></head>
+<body class="account-page"><main class="account-card">
+<a class="account-brand" href="https://www.ikodynamics.com/">ikodynamics</a>
+<p class="account-eyebrow">ÜÇ DİLLİ KİTAPLIK</p><h1 id="heading">Hesabına giriş yap</h1>
+<p class="account-description">Kitapların ve çalışma kayıtların bu cihazda kalır. Hesabın yalnızca uygulamaya erişim içindir.</p>
+<p id="message" role="status" aria-live="polite"></p>
+<form id="authForm">
+<label for="email">E-posta adresi</label><input id="email" name="email" type="email" autocomplete="username" maxlength="254" required>
+<div id="passwordField"><label for="password">Şifre</label><input id="password" name="password" type="password" autocomplete="current-password" maxlength="128" required></div>
+<div id="codeField" hidden><label for="code">E-postadaki doğrulama kodu</label><input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" maxlength="10"></div>
+<button class="account-primary" id="submit" type="submit">Giriş yap</button>
+</form>
+<nav id="authModes" aria-label="Hesap işlemleri"><button type="button" data-mode="login">Giriş yap</button><button type="button" data-mode="signup">Hesap oluştur</button><button type="button" data-mode="confirm">E-posta doğrula</button><button type="button" data-mode="recover">Şifremi unuttum</button></nav>
+<section id="signedIn" hidden><p id="identity"></p><p id="membership"></p><a class="account-primary" id="openReader" href="/app">Kitaplığı aç</a><button id="logout" type="button">Çıkış yap</button>
+<details class="local-transfer"><summary>Bu tarayıcıdaki eski kayıtlarım</summary><p>Giriş sistemi eklenmeden önce bu adreste tuttuğun kitapları, kelimeleri, notları ve vurguları bu hesabın yerel alanına kopyalayabilirsin. Buluta yükleme yapılmaz. Eski kayıtlar silinmez; mevcut hesap kayıtlarının üzerine yazılmaz.</p><label><input id="transferConsent" type="checkbox">Bu kayıtların bana ait olduğunu ve bu hesaba kopyalanmasını istediğimi onaylıyorum.</label><button type="button" id="transfer" disabled>Eski kayıtları bu hesaba kopyala</button><p id="transferStatus" role="status"></p></details></section>
+<aside class="account-footnote"><strong>Yerel kayıtlar için yedek al.</strong> Tarayıcı verilerini temizlemek kitaplığını silebilir. Cihazlar arasında aktarmak için uygulamanın dışa/içe aktarma araçlarını kullan.<br>Çeviri özelliği, çevrilecek metni dış çeviri servislerine gönderir.</aside>
+</main></body></html>
