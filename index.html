@@ -147,7 +147,7 @@ button:active{transform:translateY(1px)}
 .vocab-sort-heading.is-active .vocab-sort-icon{opacity:1}
 @media(prefers-color-scheme:dark){.vocab-sort-heading:hover,.vocab-sort-heading.is-active{color:#89d8b2!important}}
 @media(max-width:650px){.vocab-filter-controls{width:100%}.vocab-search-field{max-width:none}.vocab-list-controls{align-items:stretch}}
-</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V76</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
+</style></head><body><div class="reading-zoom" aria-label="Metin boyutu"><button type="button" onclick="changeReadingFont(1)" aria-label="Yazıyı büyüt" title="Yazıyı büyüt">+</button><button type="button" onclick="changeReadingFont(-1)" aria-label="Yazıyı küçült" title="Yazıyı küçült">−</button></div><header><h1>📖 Üç Dilli PDF Kitaplığı V77</h1><p>PDF ve EPUB kitaplarını yükle · Otomatik çeviri · Kelime defteri</p></header><main>
 <section id="library" class="ui-card library-card">
  <div class="ui-section-heading"><div><h2>📚 Kitaplığım</h2><p class="ui-muted">Kitabını seç ve okumaya devam et</p></div>
  <details class="ui-menu"><summary aria-label="Kitap işlemleri">Kitap işlemleri <span class="ui-chevron">⌄</span></summary><div class="ui-menu-content"><button class="ui-danger" onclick="deleteBook()">Seçili kitabı kaldır</button><p class="ui-muted">Yalnızca seçili kitabı kitaplıktan kaldırır.</p></div></details></div>
@@ -175,7 +175,7 @@ button:active{transform:translateY(1px)}
 </div></details></div>
 <div class="ui-word-toolbar"><button class="primary" onclick="takeWord()">＋ Seçili kelimeyi al</button><button onclick="openSelectedNote()">📝 Kelime notu</button><span id="status" class="note">Hazır.</span></div>
 <div class="cols ui-word-fields"><div class="field"><label>🇹🇷 Türkçe</label><input id="tr" placeholder="Türkçe"></div><div class="field"><label>🇩🇪 Almanca (artikel dahil)</label><input id="de" placeholder="der / die / das + kelime" oninput="preview()"><div id="articlePreview" class="note"></div></div><div class="field"><label>🇬🇧 İngilizce</label><input id="en" placeholder="English"></div></div>
-<div class="ui-save-row"><button class="primary" onclick="saveWord()">Üç dilde kaydet</button><button onclick="clearFields()">Temizle</button><span id="storageNote" class="note">Kelimeler otomatik olarak tarayıcıda saklanır.</span></div>
+<div class="ui-save-row"><button class="primary" id="saveWordButton" onclick="saveWord()">Üç dilde kaydet</button><button onclick="clearFields()">Temizle</button><span id="storageNote" class="note">Kelimeler otomatik olarak tarayıcıda saklanır.</span></div>
 <div class="ui-vocab-divider"></div>
 <div class="ui-list-controls"><h3>Kaydedilen kelimeler</h3><div class="vocab-filter-controls"><label class="vocab-search-field"><span class="vocab-search-icon" aria-hidden="true">⌕</span><input id="wordSearch" type="search" placeholder="Üç dilde kelime ara…" aria-label="Kaydedilen kelimelerde ara" oninput="renderSaved()" autocomplete="off"></label><label>Kitap <select id="wordBookFilter" onchange="renderSaved()"><option value="all">Tüm kitaplar</option></select></label></div></div>
 <div id="saved"></div></section></main><div id="noteOverlay" class="note-overlay" hidden><div class="note-dialog" role="dialog" aria-modal="true" aria-labelledby="noteHeading"><h2 id="noteHeading">📝 Kelime notu</h2><div id="noteContext" class="note"></div><label for="noteEditor">Notun</label><textarea id="noteEditor" rows="5" placeholder="Bu kelimeyle ilgili notunu yaz…" style="width:100%;font:inherit;padding:10px;border:1px solid #a8c5b9;border-radius:8px;resize:vertical"></textarea><p id="noteStatus" class="note"></p><div class="actions"><button class="primary" onclick="saveSelectedNote()">Notu kaydet</button><button onclick="deleteSelectedNote()">Notu sil</button><button onclick="closeNote()">Kapat</button></div></div></div><script>
@@ -973,7 +973,7 @@ async function vocabTransaction(change){
 }
 function refreshVocabulary(){return dataRead(VOCAB_STATE_KEY).then(state=>{if(!state)return;const v=cleanVocabularyState(state);words=v.words;wordBooks=v.wordBooks;wordExamples=v.examples;renderSaved()}).catch(e=>storageNotice('⚠ Kelimeler okunamadı: '+e.message))}
 function queueVocabChange(change){
- vocabQueue=vocabQueue.then(async()=>{await vocabTransaction(change);await refreshVocabulary();if(vocabChannel)vocabChannel.postMessage('updated');storageNotice('✓ Kelimeler '+(storageMode==='local'?'yerel depoya':'IndexedDB’ye')+' kaydedildi ve doğrulandı.')}).catch(e=>{storageNotice('⚠ Kelime kaydedilemedi: '+e.message);return refreshVocabulary()});return vocabQueue
+ const operation=vocabQueue.catch(()=>{}).then(async()=>{await vocabTransaction(change);await refreshVocabulary();if(vocabChannel)vocabChannel.postMessage('updated');storageNotice('✓ Kelimeler '+(storageMode==='local'?'yerel depoya':'IndexedDB’ye')+' kaydedildi ve doğrulandı.')});vocabQueue=operation.catch(e=>{storageNotice('⚠ Kelime kaydedilemedi: '+e.message)});return operation
 }
 try{if('BroadcastChannel' in window){vocabChannel=new BroadcastChannel('three-language-vocabulary-v53');vocabChannel.onmessage=()=>{vocabQueue.then(refreshVocabulary)}}}catch(e){}
 window.addEventListener('storage',e=>{if(e.key===FALLBACK_PREFIX+VOCAB_STATE_KEY&&storageMode==='local')vocabQueue.then(refreshVocabulary)});
@@ -989,27 +989,39 @@ function vocabularySelectedWordMatches(selected,stored,lang){
  };
  return !!normalize(selected)&&normalize(selected)===normalize(stored);
 }
-function saveWord(){
+async function saveWord(){
  const row=['tr','de','en'].map(l=>$(l).value.trim());
- if(row.some(x=>!x)){$('status').textContent='Üç kutuyu doldur.';return}
+ const missing=['Türkçe','Almanca','İngilizce'].filter((_,i)=>!row[i]);
+ if(missing.length){$('status').textContent='⚠ Kaydedilemedi: '+missing.join(', ')+' alanını doldur. Çeviri tamamlanmadıysa elle yazabilirsin.';return}
  const k='occ-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
  const record=[...row,k];
- const context=picked?.context&&picked.context.book===currentBook
-  &&picked.context.page===pos+1
-  &&vocabularySelectedWordMatches(picked.text,row[['tr','de','en'].indexOf(picked.lang)],picked.lang)
-  ?completeWordSentenceContext(picked.context):null;
- queueVocabChange(state=>{
-  state.words.push(record);
-  state.wordBooks[k]=[...new Set([...(state.wordBooks[k]||[]),currentBook])];
-  if(context){
-   const list=Array.isArray(state.examples[k])?state.examples[k]:[];
-   const identity=context.book+'|'+context.page+'|'+context.part+'|'+context.index;
-   const previous=-1;
-   list.push(context);
-   state.examples[k]=list;
+ let context=null;
+ try{
+  if(picked?.context&&picked.context.book===currentBook&&picked.context.page===pos+1
+    &&vocabularySelectedWordMatches(picked.text,row[['tr','de','en'].indexOf(picked.lang)],picked.lang)){
+   context=completeWordSentenceContext(picked.context);
   }
- });
- $('status').textContent=context?'Kelime ve örnek cümlesi kaydediliyor…':'Kelime kaydediliyor… (Örnek cümle için önce metinden kelime seç.)';
+ }catch(e){console.warn('Örnek cümle alınamadı; kelime yine kaydedilecek.',e)}
+ const button=document.getElementById('saveWordButton');
+ if(button)button.disabled=true;
+ $('status').textContent='⏳ Kelime kaydediliyor…';
+ try{
+  await queueVocabChange(state=>{
+   state.words.push(record);
+   state.wordBooks[k]=[currentBook];
+   if(context)state.examples[k]=[context];
+  });
+  // Read back the authoritative store rather than claiming success before verification.
+  const stored=cleanVocabularyState(await dataRead(VOCAB_STATE_KEY));
+  if(!stored.words.some(w=>entryKey(w)===k))throw Error('Kayıt doğrulanamadı');
+  const filter=$('wordBookFilter');if(filter)filter.value='all';
+  const search=$('wordSearch');if(search)search.value='';
+  await refreshVocabulary();
+  $('status').textContent='✓ Kelime ayrı bir satır olarak kaydedildi'+(context?' · örnek cümle eklendi.':'.');
+ }catch(e){
+  $('status').textContent='⚠ Kelime kaydedilemedi: '+(e?.message||e);
+  storageNotice('⚠ Kelime kayıt hatası: '+(e?.message||e));
+ }finally{if(button)button.disabled=false}
 }
 function exampleSentenceMarkup(sentence,word){
  const text=String(sentence||'');
