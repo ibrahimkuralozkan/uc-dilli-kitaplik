@@ -1,0 +1,12 @@
+{
+  "name": "ikodynamics-kitaplik",
+  "compatibility_date": "2026-10-19",
+  "build": {
+    "command": "node scripts/build-site.cjs"
+  },
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
